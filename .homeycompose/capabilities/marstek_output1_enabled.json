@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Output 1 Enabled",
+    "de": "Ausgang 1 aktiv"
+  },
+  "insights": true,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}
