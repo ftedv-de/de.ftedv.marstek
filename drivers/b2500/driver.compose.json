@@ -34,5 +34,10 @@
   ],
   "connectivity": [
     "lan"
-  ]
+  ],
+  "images": {
+    "small": "/assets/icon.svg",
+    "large": "/assets/icon.svg",
+    "xlarge": "/assets/icon.svg"
+  }
 }
