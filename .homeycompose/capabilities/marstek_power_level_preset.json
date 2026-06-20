@@ -10,6 +10,13 @@
   "insights": false,
   "values": [
     {
+      "id": "0",
+      "title": {
+        "en": "0 W (Off)",
+        "de": "0 W (Aus)"
+      }
+    },
+    {
       "id": "100",
       "title": {
         "en": "100 W",
