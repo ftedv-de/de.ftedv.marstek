@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="/homey.js" data-origin="pair"></script>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input, select { width: 100%; box-sizing: border-box; padding: .45rem; }
+    button { margin-top: 1rem; padding: .55rem 1rem; }
+    .hint { color: #666; margin-top: .5rem; font-size: .9rem; }
+    .status { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Marstek B2500 hinzufügen</h1>
+
+  <p class="hint">
+    Gib die Geräteversion und Device-ID ein. Die App sendet anschließend cd=01 und fügt das Gerät nur hinzu, wenn eine Statusantwort empfangen wird.
+  </p>
+
+  <label for="model">Geräteversion</label>
+  <select id="model">
+    <option value="HMJ-2">HMJ-2</option>
+    <option value="HMA-1">HMA-1</option>
+    <option value="HMB-1">HMB-1</option>
+    <option value="HMF-1">HMF-1</option>
+    <option value="HMK-1">HMK-1</option>
+  </select>
+
+  <label for="device_id">Device-ID</label>
+  <input id="device_id" type="text" maxlength="12" placeholder="18cedfd22770">
+
+  <button id="probe">Gerät prüfen und hinzufügen</button>
+
+  <div id="status" class="status"></div>
+
+  <script>
+    function onHomeyReady(Homey) {
+      const modelEl = document.getElementById('model');
+      const deviceIdEl = document.getElementById('device_id');
+      const button = document.getElementById('probe');
+      const status = document.getElementById('status');
+
+      function setStatus(text) {
+        status.textContent = text || '';
+      }
+
+      button.addEventListener('click', () => {
+        const model = modelEl.value;
+        const deviceId = deviceIdEl.value.trim().toLowerCase();
+
+        if (!/^[a-f0-9]{12}$/.test(deviceId)) {
+          Homey.alert('Bitte eine 12-stellige hexadezimale Device-ID eingeben.');
+          return;
+        }
+
+        button.disabled = true;
+        setStatus('Sende cd=01 und warte auf Antwort...');
+
+        Homey.emit('probe_device', { model, deviceId })
+          .then(device => {
+            setStatus('Gerät gefunden. Füge Gerät hinzu...');
+            return Homey.createDevice(device);
+          })
+          .then(() => {
+            setStatus('Gerät wurde hinzugefügt.');
+            Homey.done();
+          })
+          .catch(error => {
+            Homey.alert(error && error.message ? error.message : String(error));
+            setStatus('Kein Gerät gefunden oder Fehler beim Hinzufügen.');
+          })
+          .finally(() => {
+            button.disabled = false;
+          });
+      });
+
+      Homey.ready();
+    }
+  </script>
+</body>
+</html>
