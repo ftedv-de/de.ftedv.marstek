@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Maximum Cell Temperature",
+    "de": "Maximale Zelltemperatur"
+  },
+  "units": {
+    "en": "°C"
+  },
+  "decimals": 1,
+  "insights": true,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}
