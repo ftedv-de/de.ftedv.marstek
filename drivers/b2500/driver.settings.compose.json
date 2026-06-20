@@ -15,7 +15,7 @@
       "de": "Status Topic",
       "en": "State topic"
     },
-    "value": "hame_energy/device/ctrl"
+    "value": "hame_energy/HMJ-2/device/18cedfd22770/ctrl"
   },
   {
     "id": "mqtt_command_topic",
@@ -24,6 +24,6 @@
       "de": "Command Topic",
       "en": "Command topic"
     },
-    "value": "hame_energy/App/ctrl"
+    "value": "hame_energy/App/18cedfd22770/ctrl"
   }
 ]
