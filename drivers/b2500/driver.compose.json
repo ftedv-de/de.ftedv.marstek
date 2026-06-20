@@ -36,8 +36,8 @@
     "lan"
   ],
   "images": {
-    "small": "/assets/icon.svg",
-    "large": "/assets/icon.svg",
-    "xlarge": "/assets/icon.svg"
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
   }
 }
