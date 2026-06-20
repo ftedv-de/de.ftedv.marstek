@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input { width: 100%; box-sizing: border-box; padding: .4rem; }
+    .row { margin-bottom: .5rem; }
+    button { margin-top: 1rem; padding: .5rem 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Marstek MQTT</h1>
+
+  <div class="row">
+    <label for="mqtt_host">MQTT Host</label>
+    <input id="mqtt_host" type="text" placeholder="192.168.1.10">
+  </div>
+
+  <div class="row">
+    <label for="mqtt_port">MQTT Port</label>
+    <input id="mqtt_port" type="number" min="1" max="65535" placeholder="1883">
+  </div>
+
+  <div class="row">
+    <label for="mqtt_username">Username</label>
+    <input id="mqtt_username" type="text">
+  </div>
+
+  <div class="row">
+    <label for="mqtt_password">Password</label>
+    <input id="mqtt_password" type="password">
+  </div>
+
+  <div class="row">
+    <label>
+      <input id="mqtt_tls" type="checkbox" style="width: auto;">
+      Use TLS
+    </label>
+  </div>
+
+  <button id="save">Save</button>
+
+  <script>
+    function getValue(id) {
+      return document.getElementById(id).value;
+    }
+
+    function setValue(id, value) {
+      document.getElementById(id).value = value || '';
+    }
+
+    Homey.ready();
+
+    Promise.all([
+      Homey.get('mqtt_host'),
+      Homey.get('mqtt_port'),
+      Homey.get('mqtt_username'),
+      Homey.get('mqtt_password'),
+      Homey.get('mqtt_tls'),
+    ]).then(([host, port, username, password, tls]) => {
+      setValue('mqtt_host', host);
+      setValue('mqtt_port', port || 1883);
+      setValue('mqtt_username', username);
+      setValue('mqtt_password', password);
+      document.getElementById('mqtt_tls').checked = tls === true;
+    });
+
+    document.getElementById('save').addEventListener('click', async () => {
+      await Homey.set('mqtt_host', getValue('mqtt_host'));
+      await Homey.set('mqtt_port', Number(getValue('mqtt_port') || 1883));
+      await Homey.set('mqtt_username', getValue('mqtt_username'));
+      await Homey.set('mqtt_password', getValue('mqtt_password'));
+      await Homey.set('mqtt_tls', document.getElementById('mqtt_tls').checked);
+      Homey.alert('Settings saved. Restart the app to reconnect MQTT.');
+    });
+  </script>
+</body>
+</html>
