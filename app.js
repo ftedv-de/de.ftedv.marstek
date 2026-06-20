@@ -2,6 +2,11 @@
 const Homey = require('homey');
 const mqtt = require('mqtt');
 
+const MODELS_BY_HARDWARE_VERSION = {
+  v1: ['HMB-1'],
+  v2: ['HMJ-2', 'HMA-1', 'HMF-1', 'HMK-1'],
+};
+
 class MarstekApp extends Homey.App {
   async onInit() {
     this.topicDevices = new Map();
@@ -54,7 +59,7 @@ class MarstekApp extends Homey.App {
     });
   }
 
-  buildMarstekDevice({ model, deviceId }) {
+  buildMarstekDevice({ model, deviceId, protocolVersion = 'v2' }) {
     const normalizedModel = String(model || '').trim();
     const normalizedDeviceId = String(deviceId || '').trim().toLowerCase();
 
@@ -72,21 +77,40 @@ class MarstekApp extends Homey.App {
         id: `${normalizedModel}-${normalizedDeviceId}`,
       },
       settings: {
-        protocol_version: 'v2',
+        protocol_version: protocolVersion,
         mqtt_state_topic: `hame_energy/${normalizedModel}/device/${normalizedDeviceId}/ctrl`,
         mqtt_command_topic: `hame_energy/${normalizedModel}/App/${normalizedDeviceId}/ctrl`,
       },
     };
   }
 
-  async probeDevice({ model, deviceId, timeoutMs = 8000 }) {
+  async probeDevice({ hardwareVersion, protocolVersion, deviceId, timeoutMs = 8000 }) {
     if (!this.client?.connected) {
       throw new Error('MQTT client is not connected');
     }
 
-    const device = this.buildMarstekDevice({ model, deviceId });
-    const stateTopic = device.settings.mqtt_state_topic;
-    const commandTopic = device.settings.mqtt_command_topic;
+    const selectedVersion = String(hardwareVersion || protocolVersion || 'v2').trim().toLowerCase();
+    const normalizedDeviceId = String(deviceId || '').trim().toLowerCase();
+    const models = MODELS_BY_HARDWARE_VERSION[selectedVersion];
+
+    if (!models) {
+      throw new Error('Unsupported hardware version');
+    }
+
+    if (!/^[a-f0-9]{12}$/i.test(normalizedDeviceId)) {
+      throw new Error('Device ID must be a 12 character hexadecimal value');
+    }
+
+    const candidates = models.map(model => this.buildMarstekDevice({
+      model,
+      deviceId: normalizedDeviceId,
+      protocolVersion: selectedVersion,
+    }));
+
+    const stateTopicToDevice = new Map(candidates.map(device => [
+      device.settings.mqtt_state_topic,
+      device,
+    ]));
 
     let resolved = false;
 
@@ -94,11 +118,14 @@ class MarstekApp extends Homey.App {
       const cleanup = () => {
         clearTimeout(timer);
         this.client.off('message', onMessage);
-        this.client.unsubscribe(stateTopic);
+        for (const topic of stateTopicToDevice.keys()) {
+          this.client.unsubscribe(topic);
+        }
       };
 
       const onMessage = (topic, payload) => {
-        if (topic !== stateTopic) return;
+        const device = stateTopicToDevice.get(topic);
+        if (!device) return;
 
         const text = payload.toString();
         if (!text.includes('pe=') && !text.includes('vv=')) return;
@@ -111,19 +138,28 @@ class MarstekApp extends Homey.App {
       const timer = setTimeout(() => {
         if (resolved) return;
         cleanup();
-        reject(new Error('No response from device. Check model, device ID and MQTT connection.'));
+        reject(new Error('No response from device. Check hardware version, device ID and MQTT connection.'));
       }, timeoutMs);
 
       this.client.on('message', onMessage);
-      this.client.subscribe(stateTopic, error => {
-        if (error) {
+
+      const subscriptions = Array.from(stateTopicToDevice.keys()).map(topic => new Promise((resolveSubscribe, rejectSubscribe) => {
+        this.client.subscribe(topic, error => {
+          if (error) rejectSubscribe(error);
+          else resolveSubscribe();
+        });
+      }));
+
+      Promise.all(subscriptions)
+        .then(() => {
+          for (const device of candidates) {
+            this.client.publish(device.settings.mqtt_command_topic, 'cd=01');
+          }
+        })
+        .catch(error => {
           cleanup();
           reject(error);
-          return;
-        }
-
-        this.client.publish(commandTopic, 'cd=01');
-      });
+        });
     });
   }
 
