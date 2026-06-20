@@ -12,9 +12,10 @@ class B2500Driver extends Homey.Driver {
     this.log('B2500 driver initialized');
   }
 
-  async onPairListDevices() {
-    const devices = await this.homey.app.discoverDevices();
-    return devices;
+  async onPair(session) {
+    session.setHandler('probe_device', async data => {
+      return this.homey.app.probeDevice(data);
+    });
   }
 }
 
