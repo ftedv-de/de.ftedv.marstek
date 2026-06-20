@@ -24,7 +24,7 @@ class B2500Device extends Homey.Device {
           throw new Error('Invalid output power preset');
         }
 
-        await this.sendCommand(this.protocol.setOutputThreshold(watts));
+        await this.setOutputPowerSchedule(watts);
         await this.setCapabilityValue('marstek_power_level_preset', String(watts));
       });
     }
@@ -73,6 +73,10 @@ class B2500Device extends Homey.Device {
   }
 
   async setOutputPower(watts) {
+    return this.setOutputPowerSchedule(watts);
+  }
+
+  async setOutputPowerSchedule(watts) {
     const value = Number(watts);
 
     if (!Number.isFinite(value)) {
@@ -83,7 +87,33 @@ class B2500Device extends Homey.Device {
       throw new Error('Output power must be between 0 and 2500 W');
     }
 
-    return this.sendCommand(this.protocol.setOutputThreshold(Math.round(value)));
+    const power = Math.round(value);
+    const command = [
+      'cd=20',
+      'md=0',
+      `a1=${power > 0 ? 1 : 0}`,
+      'b1=0:0',
+      'e1=22:0',
+      `v1=${power}`,
+      'a2=0',
+      'b2=0:0',
+      'e2=0:0',
+      'v2=80',
+      'a3=0',
+      'b3=0:0',
+      'e3=0:0',
+      'v3=80',
+      'a4=0',
+      'b4=0:0',
+      'e4=0:0',
+      'v4=80',
+      'a5=0',
+      'b5=0:0',
+      'e5=0:0',
+      'v5=80',
+    ].join(',');
+
+    return this.sendCommand(command);
   }
 
   sendCommand(command) {
