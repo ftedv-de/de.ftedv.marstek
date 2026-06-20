@@ -16,16 +16,13 @@
   <h1>Marstek B2500 hinzufügen</h1>
 
   <p class="hint">
-    Gib die Geräteversion und Device-ID ein. Die App sendet anschließend cd=01 und fügt das Gerät nur hinzu, wenn eine Statusantwort empfangen wird.
+    Wähle die Hardware-/Protokollversion und gib die Device-ID ein. Die App testet alle passenden Geräteklassen, sendet cd=01 und fügt das Gerät hinzu, sobald eine Statusantwort empfangen wird.
   </p>
 
-  <label for="model">Geräteversion</label>
-  <select id="model">
-    <option value="HMJ-2">HMJ-2</option>
-    <option value="HMA-1">HMA-1</option>
-    <option value="HMB-1">HMB-1</option>
-    <option value="HMF-1">HMF-1</option>
-    <option value="HMK-1">HMK-1</option>
+  <label for="hardware_version">Hardware-Version</label>
+  <select id="hardware_version">
+    <option value="v2">v2</option>
+    <option value="v1">v1</option>
   </select>
 
   <label for="device_id">Device-ID</label>
@@ -37,7 +34,7 @@
 
   <script>
     function onHomeyReady(Homey) {
-      const modelEl = document.getElementById('model');
+      const hardwareVersionEl = document.getElementById('hardware_version');
       const deviceIdEl = document.getElementById('device_id');
       const button = document.getElementById('probe');
       const status = document.getElementById('status');
@@ -47,7 +44,7 @@
       }
 
       button.addEventListener('click', () => {
-        const model = modelEl.value;
+        const hardwareVersion = hardwareVersionEl.value;
         const deviceId = deviceIdEl.value.trim().toLowerCase();
 
         if (!/^[a-f0-9]{12}$/.test(deviceId)) {
@@ -56,9 +53,9 @@
         }
 
         button.disabled = true;
-        setStatus('Sende cd=01 und warte auf Antwort...');
+        setStatus('Teste passende Geräteklassen und warte auf Antwort...');
 
-        Homey.emit('probe_device', { model, deviceId })
+        Homey.emit('probe_device', { hardwareVersion, deviceId })
           .then(device => {
             setStatus('Gerät gefunden. Füge Gerät hinzu...');
             return Homey.createDevice(device);
