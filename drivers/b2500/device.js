@@ -15,6 +15,19 @@ class B2500Device extends Homey.Device {
     if (this.stateTopic) {
       this.homey.app.subscribeDevice(this, this.stateTopic);
     }
+
+    if (this.hasCapability('marstek_power_level_preset')) {
+      this.registerCapabilityListener('marstek_power_level_preset', async value => {
+        const watts = Number(value);
+
+        if (!Number.isFinite(watts)) {
+          throw new Error('Invalid output power preset');
+        }
+
+        await this.sendCommand(this.protocol.setOutputThreshold(watts));
+        await this.setCapabilityValue('marstek_power_level_preset', String(watts));
+      });
+    }
   }
 
   async onSettings({ oldSettings, newSettings, changedKeys }) {
