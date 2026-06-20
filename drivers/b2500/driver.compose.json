@@ -1,0 +1,43 @@
+{
+  "id": "b2500",
+  "name": {
+    "en": "Marstek B2500"
+  },
+  "class": "battery",
+  "capabilities": [
+    "measure_battery",
+    "measure_power",
+    "marstek_pv1_power",
+    "marstek_pv2_power",
+    "marstek_pv_power",
+    "marstek_output1_power",
+    "marstek_output2_power",
+    "marstek_output_power",
+    "marstek_dod",
+    "marstek_threshold_w",
+    "marstek_firmware_version",
+    "marstek_wifi_signal",
+    "marstek_cell_temp_min",
+    "marstek_cell_temp_max",
+    "marstek_charge_mode",
+    "marstek_discharge_mode",
+    "marstek_output1_enabled",
+    "marstek_output2_enabled"
+  ],
+  "energy": {
+    "batteries": [
+      "INTERNAL"
+    ]
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  }
+}
