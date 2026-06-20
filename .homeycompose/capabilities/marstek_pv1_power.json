@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "PV 1 Power",
+    "de": "PV 1 Leistung"
+  },
+  "units": {
+    "en": "W"
+  },
+  "decimals": 0,
+  "insights": true,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}
