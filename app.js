@@ -54,6 +54,52 @@ class MarstekApp extends Homey.App {
     });
   }
 
+  async discoverDevices(timeoutMs = 8000) {
+    if (!this.client?.connected) {
+      throw new Error('MQTT client is not connected');
+    }
+
+    const discovered = new Map();
+    const discoveryTopic = 'hame_energy/+/device/+/ctrl';
+
+    const onMessage = (topic, payload) => {
+      const match = topic.match(/^hame_energy\/([^/]+)\/device\/([^/]+)\/ctrl$/);
+      if (!match) return;
+
+      const [, model, deviceId] = match;
+
+      discovered.set(deviceId, {
+        name: `Marstek ${model} ${deviceId}`,
+        data: {
+          id: `${model}-${deviceId}`,
+        },
+        settings: {
+          protocol_version: 'v2',
+          mqtt_state_topic: topic,
+          mqtt_command_topic: `hame_energy/${model}/App/${deviceId}/ctrl`,
+        },
+      });
+    };
+
+    this.client.on('message', onMessage);
+
+    await new Promise((resolve, reject) => {
+      this.client.subscribe(discoveryTopic, error => {
+        if (error) reject(error);
+        else resolve();
+      });
+    });
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, timeoutMs));
+    } finally {
+      this.client.off('message', onMessage);
+      this.client.unsubscribe(discoveryTopic);
+    }
+
+    return Array.from(discovered.values());
+  }
+
   registerDevice(device) {
     this.devices.add(device);
   }
