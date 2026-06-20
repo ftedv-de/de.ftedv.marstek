@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Wi-Fi Signal",
+    "de": "WLAN-Signal"
+  },
+  "units": {
+    "en": "dBm"
+  },
+  "decimals": 0,
+  "insights": true,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}
