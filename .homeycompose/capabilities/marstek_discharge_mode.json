@@ -1,0 +1,12 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Discharge Mode",
+    "de": "Entlademodus"
+  },
+  "decimals": 0,
+  "insights": true,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}
