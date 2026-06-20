@@ -8,7 +8,7 @@ class B2500Driver extends Homey.Driver {
       .registerRunListener(async args => {
         return args.device.setOutputPower(args.power);
       });
-      
+
     this.log('B2500 driver initialized');
   }
 
@@ -22,7 +22,7 @@ class B2500Driver extends Homey.Driver {
         settings: {
           protocol_version: 'v2',
           mqtt_state_topic: 'hame_energy/HMJ-2/device/18cedfd22770/ctrl',
-          mqtt_command_topic: 'hame_energy/App/18cedfd22770/ctrl',
+          mqtt_command_topic: 'hame_energy/HMJ-2/App/18cedfd22770/ctrl',
         },
       },
     ];
