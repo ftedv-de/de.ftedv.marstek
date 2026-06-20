@@ -33,7 +33,13 @@
   <div id="status" class="status"></div>
 
   <script>
+    let initialized = false;
+    let readySent = false;
+
     function onHomeyReady(Homey) {
+      if (initialized) return;
+      initialized = true;
+
       const hardwareVersionEl = document.getElementById('hardware_version');
       const deviceIdEl = document.getElementById('device_id');
       const button = document.getElementById('probe');
@@ -73,7 +79,10 @@
           });
       });
 
-      Homey.ready();
+      if (!readySent) {
+        readySent = true;
+        Homey.ready();
+      }
     }
   </script>
 </body>
