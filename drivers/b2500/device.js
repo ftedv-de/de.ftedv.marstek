@@ -59,6 +59,20 @@ class B2500Device extends Homey.Device {
     }
   }
 
+  async setOutputPower(watts) {
+    const value = Number(watts);
+
+    if (!Number.isFinite(value)) {
+      throw new Error('Invalid output power');
+    }
+
+    if (value < 0 || value > 2500) {
+      throw new Error('Output power must be between 0 and 2500 W');
+    }
+
+    return this.sendCommand(this.protocol.setOutputThreshold(Math.round(value)));
+  }
+
   sendCommand(command) {
     if (!this.commandTopic) {
       throw new Error('No MQTT command topic configured');
