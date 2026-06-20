@@ -1,6 +1,6 @@
 // drivers/b2500/device.js
 const Homey = require('homey');
-const protocols = require('../../lib/marstek/protocols');
+const protocols = require('../../lib/protocols');
 
 class B2500Device extends Homey.Device {
   async onInit() {
@@ -19,7 +19,7 @@ class B2500Device extends Homey.Device {
 
   async onSettings({ oldSettings, newSettings, changedKeys }) {
     if (changedKeys.includes('protocol_version')) {
-      this.protocol = protocols.create(newSettings.protocol_version);
+      this.protocol = protocols.create(newSettings.protocol_version || 'v2');
     }
 
     if (changedKeys.includes('mqtt_state_topic')) {
