@@ -1,0 +1,69 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Output Power Preset",
+    "de": "Ausgangsleistung Vorgabe"
+  },
+  "uiComponent": "picker",
+  "getable": true,
+  "setable": true,
+  "insights": false,
+  "values": [
+    {
+      "id": "100",
+      "title": {
+        "en": "100 W",
+        "de": "100 W"
+      }
+    },
+    {
+      "id": "200",
+      "title": {
+        "en": "200 W",
+        "de": "200 W"
+      }
+    },
+    {
+      "id": "300",
+      "title": {
+        "en": "300 W",
+        "de": "300 W"
+      }
+    },
+    {
+      "id": "400",
+      "title": {
+        "en": "400 W",
+        "de": "400 W"
+      }
+    },
+    {
+      "id": "500",
+      "title": {
+        "en": "500 W",
+        "de": "500 W"
+      }
+    },
+    {
+      "id": "600",
+      "title": {
+        "en": "600 W",
+        "de": "600 W"
+      }
+    },
+    {
+      "id": "700",
+      "title": {
+        "en": "700 W",
+        "de": "700 W"
+      }
+    },
+    {
+      "id": "800",
+      "title": {
+        "en": "800 W",
+        "de": "800 W"
+      }
+    }
+  ]
+}
