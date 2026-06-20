@@ -54,50 +54,77 @@ class MarstekApp extends Homey.App {
     });
   }
 
-  async discoverDevices(timeoutMs = 8000) {
+  buildMarstekDevice({ model, deviceId }) {
+    const normalizedModel = String(model || '').trim();
+    const normalizedDeviceId = String(deviceId || '').trim().toLowerCase();
+
+    if (!normalizedModel) {
+      throw new Error('Missing device model');
+    }
+
+    if (!/^[a-f0-9]{12}$/i.test(normalizedDeviceId)) {
+      throw new Error('Device ID must be a 12 character hexadecimal value');
+    }
+
+    return {
+      name: `Marstek ${normalizedModel} ${normalizedDeviceId}`,
+      data: {
+        id: `${normalizedModel}-${normalizedDeviceId}`,
+      },
+      settings: {
+        protocol_version: 'v2',
+        mqtt_state_topic: `hame_energy/${normalizedModel}/device/${normalizedDeviceId}/ctrl`,
+        mqtt_command_topic: `hame_energy/${normalizedModel}/App/${normalizedDeviceId}/ctrl`,
+      },
+    };
+  }
+
+  async probeDevice({ model, deviceId, timeoutMs = 8000 }) {
     if (!this.client?.connected) {
       throw new Error('MQTT client is not connected');
     }
 
-    const discovered = new Map();
-    const discoveryTopic = 'hame_energy/+/device/+/ctrl';
+    const device = this.buildMarstekDevice({ model, deviceId });
+    const stateTopic = device.settings.mqtt_state_topic;
+    const commandTopic = device.settings.mqtt_command_topic;
 
-    const onMessage = (topic, payload) => {
-      const match = topic.match(/^hame_energy\/([^/]+)\/device\/([^/]+)\/ctrl$/);
-      if (!match) return;
+    let resolved = false;
 
-      const [, model, deviceId] = match;
+    return new Promise((resolve, reject) => {
+      const cleanup = () => {
+        clearTimeout(timer);
+        this.client.off('message', onMessage);
+        this.client.unsubscribe(stateTopic);
+      };
 
-      discovered.set(deviceId, {
-        name: `Marstek ${model} ${deviceId}`,
-        data: {
-          id: `${model}-${deviceId}`,
-        },
-        settings: {
-          protocol_version: 'v2',
-          mqtt_state_topic: topic,
-          mqtt_command_topic: `hame_energy/${model}/App/${deviceId}/ctrl`,
-        },
-      });
-    };
+      const onMessage = (topic, payload) => {
+        if (topic !== stateTopic) return;
 
-    this.client.on('message', onMessage);
+        const text = payload.toString();
+        if (!text.includes('pe=') && !text.includes('vv=')) return;
 
-    await new Promise((resolve, reject) => {
-      this.client.subscribe(discoveryTopic, error => {
-        if (error) reject(error);
-        else resolve();
+        resolved = true;
+        cleanup();
+        resolve(device);
+      };
+
+      const timer = setTimeout(() => {
+        if (resolved) return;
+        cleanup();
+        reject(new Error('No response from device. Check model, device ID and MQTT connection.'));
+      }, timeoutMs);
+
+      this.client.on('message', onMessage);
+      this.client.subscribe(stateTopic, error => {
+        if (error) {
+          cleanup();
+          reject(error);
+          return;
+        }
+
+        this.client.publish(commandTopic, 'cd=01');
       });
     });
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, timeoutMs));
-    } finally {
-      this.client.off('message', onMessage);
-      this.client.unsubscribe(discoveryTopic);
-    }
-
-    return Array.from(discovered.values());
   }
 
   registerDevice(device) {
