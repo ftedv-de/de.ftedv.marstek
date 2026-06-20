@@ -1,25 +1,11 @@
 [
   {
     "id": "protocol_version",
-    "type": "dropdown",
+    "type": "text",
     "label": {
       "de": "Protokollversion",
       "en": "Protocol version"
     },
-    "values": [
-      {
-        "id": "v1",
-        "label": {
-          "de": "v1"
-        }
-      },
-      {
-        "id": "v2",
-        "label": {
-          "de": "v2"
-        }
-      }
-    ],
     "value": "v2"
   },
   {
