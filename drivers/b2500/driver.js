@@ -9,14 +9,14 @@ class B2500Driver extends Homey.Driver {
   async onPairListDevices() {
     return [
       {
-        name: 'Marstek B2500',
+        name: 'Marstek B2500 HMJ',
         data: {
-          id: `b2500-${Date.now()}`,
+          id: 'b2500-hmj-18cedfd22770',
         },
         settings: {
           protocol_version: 'v2',
-          mqtt_state_topic: 'hame_energy/device/ctrl',
-          mqtt_command_topic: 'hame_energy/App/ctrl',
+          mqtt_state_topic: 'hame_energy/HMJ-2/device/18cedfd22770/ctrl',
+          mqtt_command_topic: 'hame_energy/App/18cedfd22770/ctrl',
         },
       },
     ];
