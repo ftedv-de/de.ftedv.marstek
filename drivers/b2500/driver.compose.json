@@ -44,7 +44,14 @@
   "pair": [
     {
       "id": "start",
-      "template": "custom"
+      "template": "custom",
+      "navigation": {
+        "next": "done"
+      }
+    },
+    {
+      "id": "done",
+      "template": "done"
     }
   ]
 }
