@@ -2,6 +2,10 @@
 const Homey = require('homey');
 const protocols = require('../../lib/protocols');
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 class B2500Device extends Homey.Device {
   async onInit() {
     this.settings = this.getSettings();
@@ -28,6 +32,8 @@ class B2500Device extends Homey.Device {
         await this.setCapabilityValue('marstek_power_level_preset', String(watts));
       });
     }
+
+    this.refreshStateSoon(1000).catch(this.error);
   }
 
   async onSettings({ oldSettings, newSettings, changedKeys }) {
@@ -45,10 +51,13 @@ class B2500Device extends Homey.Device {
       if (this.stateTopic) {
         this.homey.app.subscribeDevice(this, this.stateTopic);
       }
+
+      this.refreshStateSoon(1000).catch(this.error);
     }
 
     if (changedKeys.includes('mqtt_command_topic')) {
       this.commandTopic = newSettings.mqtt_command_topic;
+      this.refreshStateSoon(1000).catch(this.error);
     }
   }
 
@@ -113,7 +122,20 @@ class B2500Device extends Homey.Device {
       'v5=80',
     ].join(',');
 
-    return this.sendCommand(command);
+    await this.sendCommand(command);
+    await this.refreshStateSoon(1000);
+  }
+
+  async refreshStateSoon(delayMs = 0) {
+    if (delayMs > 0) {
+      await delay(delayMs);
+    }
+
+    return this.refreshState();
+  }
+
+  refreshState() {
+    return this.sendCommand('cd=01');
   }
 
   sendCommand(command) {
