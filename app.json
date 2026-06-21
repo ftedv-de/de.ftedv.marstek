@@ -18,13 +18,428 @@
     "energy"
   ],
   "permissions": [],
-  "images": {
-    "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
-  },
   "author": {
     "name": "Florian Trück",
     "email": "ftrueck@gmail.com"
+  },
+  "flow": {
+    "actions": [
+      {
+        "title": {
+          "en": "Set output power",
+          "de": "Ausgangsleistung setzen"
+        },
+        "titleFormatted": {
+          "en": "Set output power to [[power]] W",
+          "de": "Setze Ausgangsleistung auf [[power]] W"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "power",
+            "type": "number",
+            "min": 0,
+            "max": 2500,
+            "step": 10
+          }
+        ],
+        "id": "set_output_power"
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "id": "b2500",
+      "name": {
+        "en": "Marstek B2500"
+      },
+      "class": "battery",
+      "capabilities": [
+        "measure_battery",
+        "measure_power",
+        "marstek_power_level_preset",
+        "marstek_pv1_power",
+        "marstek_pv2_power",
+        "marstek_pv_power",
+        "marstek_output1_power",
+        "marstek_output2_power",
+        "marstek_output_power",
+        "marstek_dod",
+        "marstek_threshold_w",
+        "marstek_firmware_version",
+        "marstek_wifi_signal",
+        "marstek_cell_temp_min",
+        "marstek_cell_temp_max",
+        "marstek_charge_mode",
+        "marstek_discharge_mode",
+        "marstek_output1_enabled",
+        "marstek_output2_enabled"
+      ],
+      "energy": {
+        "batteries": [
+          "INTERNAL"
+        ]
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/assets/images/small.png",
+        "large": "/assets/images/large.png",
+        "xlarge": "/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "id": "protocol_version",
+          "type": "text",
+          "label": {
+            "de": "Protokollversion",
+            "en": "Protocol version"
+          },
+          "value": "v2"
+        },
+        {
+          "id": "mqtt_state_topic",
+          "type": "text",
+          "label": {
+            "de": "Status Topic",
+            "en": "State topic"
+          },
+          "value": "hame_energy/HMJ-2/device/18cedfd22770/ctrl"
+        },
+        {
+          "id": "mqtt_command_topic",
+          "type": "text",
+          "label": {
+            "de": "Command Topic",
+            "en": "Command topic"
+          },
+          "value": "hame_energy/App/18cedfd22770/ctrl"
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "marstek_cell_temp_max": {
+      "type": "number",
+      "title": {
+        "en": "Maximum Cell Temperature",
+        "de": "Maximale Zelltemperatur"
+      },
+      "units": {
+        "en": "°C"
+      },
+      "decimals": 1,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_cell_temp_min": {
+      "type": "number",
+      "title": {
+        "en": "Minimum Cell Temperature",
+        "de": "Minimale Zelltemperatur"
+      },
+      "units": {
+        "en": "°C"
+      },
+      "decimals": 1,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_charge_mode": {
+      "type": "number",
+      "title": {
+        "en": "Charge Mode",
+        "de": "Lademodus"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_discharge_mode": {
+      "type": "number",
+      "title": {
+        "en": "Discharge Mode",
+        "de": "Entlademodus"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_dod": {
+      "type": "number",
+      "title": {
+        "en": "Depth of Discharge",
+        "de": "Entladetiefe"
+      },
+      "units": {
+        "en": "%"
+      },
+      "min": 0,
+      "max": 100,
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_firmware_version": {
+      "type": "number",
+      "title": {
+        "en": "Firmware Version",
+        "de": "Firmware-Version"
+      },
+      "decimals": 0,
+      "insights": false,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_output_power": {
+      "type": "number",
+      "title": {
+        "en": "Output Power",
+        "de": "Ausgangsleistung"
+      },
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_output1_enabled": {
+      "type": "boolean",
+      "title": {
+        "en": "Output 1 Enabled",
+        "de": "Ausgang 1 aktiv"
+      },
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_output1_power": {
+      "type": "number",
+      "title": {
+        "en": "Output 1 Power",
+        "de": "Ausgang 1 Leistung"
+      },
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_output2_enabled": {
+      "type": "boolean",
+      "title": {
+        "en": "Output 2 Enabled",
+        "de": "Ausgang 2 aktiv"
+      },
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_output2_power": {
+      "type": "number",
+      "title": {
+        "en": "Output 2 Power",
+        "de": "Ausgang 2 Leistung"
+      },
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_power_level_preset": {
+      "type": "enum",
+      "title": {
+        "en": "Output Power Preset",
+        "de": "Ausgangsleistung Vorgabe"
+      },
+      "uiComponent": "picker",
+      "getable": true,
+      "setable": true,
+      "insights": false,
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "0 W (Off)",
+            "de": "0 W (Aus)"
+          }
+        },
+        {
+          "id": "100",
+          "title": {
+            "en": "100 W",
+            "de": "100 W"
+          }
+        },
+        {
+          "id": "200",
+          "title": {
+            "en": "200 W",
+            "de": "200 W"
+          }
+        },
+        {
+          "id": "300",
+          "title": {
+            "en": "300 W",
+            "de": "300 W"
+          }
+        },
+        {
+          "id": "400",
+          "title": {
+            "en": "400 W",
+            "de": "400 W"
+          }
+        },
+        {
+          "id": "500",
+          "title": {
+            "en": "500 W",
+            "de": "500 W"
+          }
+        },
+        {
+          "id": "600",
+          "title": {
+            "en": "600 W",
+            "de": "600 W"
+          }
+        },
+        {
+          "id": "700",
+          "title": {
+            "en": "700 W",
+            "de": "700 W"
+          }
+        },
+        {
+          "id": "800",
+          "title": {
+            "en": "800 W",
+            "de": "800 W"
+          }
+        }
+      ]
+    },
+    "marstek_pv_power": {
+      "type": "number",
+      "title": {
+        "en": "PV Power",
+        "de": "PV Leistung"
+      },
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_pv1_power": {
+      "type": "number",
+      "title": {
+        "en": "PV 1 Power",
+        "de": "PV 1 Leistung"
+      },
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_pv2_power": {
+      "type": "number",
+      "title": {
+        "en": "PV 2 Power",
+        "de": "PV 2 Leistung"
+      },
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_threshold_w": {
+      "type": "number",
+      "title": {
+        "en": "Output Threshold",
+        "de": "Ausgangsschwelle"
+      },
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
+    "marstek_wifi_signal": {
+      "type": "number",
+      "title": {
+        "en": "Wi-Fi Signal",
+        "de": "WLAN-Signal"
+      },
+      "units": {
+        "en": "dBm"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    }
   }
 }

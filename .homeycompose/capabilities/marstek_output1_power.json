@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Output 1 Power",
+    "de": "Ausgang 1 Leistung"
+  },
+  "units": {
+    "en": "W"
+  },
+  "decimals": 0,
+  "insights": true,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}

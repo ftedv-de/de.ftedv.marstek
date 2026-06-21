@@ -1,0 +1,12 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Firmware Version",
+    "de": "Firmware-Version"
+  },
+  "decimals": 0,
+  "insights": false,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}
