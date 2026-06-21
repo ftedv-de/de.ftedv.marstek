@@ -12,9 +12,10 @@ Homey-App für Marstek Energiespeicher mit MQTT-Anbindung.
 
 Aktuell:
 
-- HMJ-2 (B2500)
+- B2500 Gerätefamilie
+  - HMJ-2 (B2500)
 
-Architektur vorbereitet für:
+Architektur vorbereitet für B2500-Varianten:
 
 - HMA-1
 - HMB-1
@@ -121,10 +122,34 @@ nach kurzer Verzögerung.
 
 ### Architektur
 
+- Homey-Driver bleibt gerätefamilienbezogen unter `drivers/b2500`
+- B2500-Modellvarianten werden unter `lib/marstek/b2500` abgebildet
 - Protokollschicht getrennt nach Versionen (`v1`, `v2`)
 - Geräteklassen werden über MQTT-Antwort erkannt
 - MQTT-Verbindung zentral in der App verwaltet
 - Devices abonnieren ausschließlich ihr eigenes State Topic
+
+### Aktuelle Verzeichnisstruktur für B2500
+
+```
+drivers/
+  b2500/
+    driver.js
+    device.js
+
+lib/
+  marstek/
+    b2500/
+      factory.js
+      models.js
+      protocols/
+        index.js
+        v1.js
+        v2.js
+        common/
+          mapper.js
+          parser.js
+```
 
 ## Offene Punkte
 
@@ -161,7 +186,7 @@ Beispiele:
 - Netzladefunktionen
 - weitere durch MQTT verfügbare Parameter
 
-### Weitere Geräte
+### Weitere B2500-Varianten
 
 - HMA-1 testen
 - HMB-1 testen
@@ -193,4 +218,5 @@ Nach Änderungen sollte immer ein:
 ```
 cd=01
 ```
+
 ausgeführt werden, um den aktuellen Zustand erneut einzulesen.
