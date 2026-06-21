@@ -33,12 +33,14 @@
   <div id="status" class="status"></div>
 
   <script>
-    let initialized = false;
-    let readySent = false;
+    window.marstekPairingState = window.marstekPairingState || {
+      initialized: false,
+      readySent: false,
+    };
 
     function onHomeyReady(Homey) {
-      if (initialized) return;
-      initialized = true;
+      if (window.marstekPairingState.initialized) return;
+      window.marstekPairingState.initialized = true;
 
       const hardwareVersionEl = document.getElementById('hardware_version');
       const deviceIdEl = document.getElementById('device_id');
@@ -79,8 +81,8 @@
           });
       });
 
-      if (!readySent) {
-        readySent = true;
+      if (!window.marstekPairingState.readySent) {
+        window.marstekPairingState.readySent = true;
         Homey.ready();
       }
     }
