@@ -1,6 +1,6 @@
 // drivers/b2500/device.js
 const Homey = require('homey');
-const protocols = require('../../lib/protocols');
+const protocols = require('../../lib/marstek/b2500/protocols');
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
