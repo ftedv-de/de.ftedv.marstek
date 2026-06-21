@@ -1,11 +1,8 @@
 // app.js
 const Homey = require('homey');
 const mqtt = require('mqtt');
-
-const MODELS_BY_HARDWARE_VERSION = {
-  v1: ['HMB-1'],
-  v2: ['HMJ-2', 'HMA-1', 'HMF-1', 'HMK-1'],
-};
+const { buildB2500Device, normalizeDeviceId } = require('./lib/marstek/b2500/factory');
+const { getModelsForHardwareVersion, normalizeHardwareVersion } = require('./lib/marstek/b2500/models');
 
 class MarstekApp extends Homey.App {
   async onInit() {
@@ -60,28 +57,11 @@ class MarstekApp extends Homey.App {
   }
 
   buildMarstekDevice({ model, deviceId, protocolVersion = 'v2' }) {
-    const normalizedModel = String(model || '').trim();
-    const normalizedDeviceId = String(deviceId || '').trim().toLowerCase();
-
-    if (!normalizedModel) {
-      throw new Error('Missing device model');
-    }
-
-    if (!/^[a-f0-9]{12}$/i.test(normalizedDeviceId)) {
-      throw new Error('Device ID must be a 12 character hexadecimal value');
-    }
-
-    return {
-      name: `Marstek ${normalizedModel} ${normalizedDeviceId}`,
-      data: {
-        id: `${normalizedModel}-${normalizedDeviceId}`,
-      },
-      settings: {
-        protocol_version: protocolVersion,
-        mqtt_state_topic: `hame_energy/${normalizedModel}/device/${normalizedDeviceId}/ctrl`,
-        mqtt_command_topic: `hame_energy/${normalizedModel}/App/${normalizedDeviceId}/ctrl`,
-      },
-    };
+    return buildB2500Device({
+      model,
+      deviceId,
+      protocolVersion,
+    });
   }
 
   async probeDevice({ hardwareVersion, protocolVersion, deviceId, timeoutMs = 8000 }) {
@@ -89,9 +69,9 @@ class MarstekApp extends Homey.App {
       throw new Error('MQTT client is not connected');
     }
 
-    const selectedVersion = String(hardwareVersion || protocolVersion || 'v2').trim().toLowerCase();
-    const normalizedDeviceId = String(deviceId || '').trim().toLowerCase();
-    const models = MODELS_BY_HARDWARE_VERSION[selectedVersion];
+    const selectedVersion = normalizeHardwareVersion(hardwareVersion || protocolVersion || 'v2');
+    const normalizedDeviceId = normalizeDeviceId(deviceId);
+    const models = getModelsForHardwareVersion(selectedVersion);
 
     if (!models) {
       throw new Error('Unsupported hardware version');
