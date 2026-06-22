@@ -62,7 +62,9 @@ Die App:
 3. sendet `cd=01`
 4. wartet auf Antwort
 5. erkennt daraus das tatsächliche Modell
-6. legt das Device an
+6. legt zwei Homey-Devices an:
+   - B2500 Batteriespeicher (`class: battery`)
+   - B2500 PV Companion (`class: solarpanel`)
 
 ## Bekannte Kommandos
 
@@ -96,6 +98,18 @@ cd=01
 
 zur Aktualisierung.
 
+## PV-Erzeugung
+
+PV-Leistung wird zusätzlich als separates Companion-Device angelegt.
+
+Das PV-Device:
+
+- verwendet denselben MQTT-State wie das Battery-Device
+- läuft über denselben Homey-Driver `b2500`
+- wird über `store.role = pv` unterschieden
+- verwendet `class: solarpanel`
+- setzt `measure_power` auf die aktuelle PV-Leistung
+
 ## Device Refresh
 
 Beim Start des Devices:
@@ -116,13 +130,18 @@ nach kurzer Verzögerung.
 - MQTT Subscribe/Publish Infrastruktur
 - HMJ-2 State Parsing
 - Homey Device Integration
+- Battery-Device für Speicherstatus
+- PV-Companion-Device als Solar-Panel-Gerät
 - Output-Leistung über Preset-Dropdown
 - Flow Action zum Setzen der Ausgangsleistung
+- Flow Conditions für Schwellwerte
+- Flow Trigger für PV-Leistung geändert / Schwellwert überschritten / Schwellwert unterschritten
 - Automatischer Refresh nach Konfigurationsänderungen
 
 ### Architektur
 
 - Homey-Driver bleibt gerätefamilienbezogen unter `drivers/b2500`
+- Battery- und PV-Companion-Device verwenden denselben Driver und werden über `store.role` unterschieden
 - B2500-Modellvarianten werden unter `lib/marstek/b2500` abgebildet
 - Protokollschicht getrennt nach Versionen (`v1`, `v2`)
 - Geräteklassen werden über MQTT-Antwort erkannt
