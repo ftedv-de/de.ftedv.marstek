@@ -1,7 +1,7 @@
 // app.js
 const Homey = require('homey');
 const mqtt = require('mqtt');
-const { buildB2500Device, normalizeDeviceId } = require('./lib/marstek/b2500/factory');
+const { buildB2500DeviceSet, normalizeDeviceId } = require('./lib/marstek/b2500/factory');
 const { getModelsForHardwareVersion, normalizeHardwareVersion } = require('./lib/marstek/b2500/models');
 
 class MarstekApp extends Homey.App {
@@ -56,8 +56,8 @@ class MarstekApp extends Homey.App {
     });
   }
 
-  buildMarstekDevice({ model, deviceId, protocolVersion = 'v2' }) {
-    return buildB2500Device({
+  buildMarstekDeviceSet({ model, deviceId, protocolVersion = 'v2' }) {
+    return buildB2500DeviceSet({
       model,
       deviceId,
       protocolVersion,
@@ -81,15 +81,15 @@ class MarstekApp extends Homey.App {
       throw new Error('Device ID must be a 12 character hexadecimal value');
     }
 
-    const candidates = models.map(model => this.buildMarstekDevice({
+    const candidates = models.map(model => this.buildMarstekDeviceSet({
       model,
       deviceId: normalizedDeviceId,
       protocolVersion: selectedVersion,
     }));
 
-    const stateTopicToDevice = new Map(candidates.map(device => [
-      device.settings.mqtt_state_topic,
-      device,
+    const stateTopicToDeviceSet = new Map(candidates.map(deviceSet => [
+      deviceSet.battery.settings.mqtt_state_topic,
+      deviceSet,
     ]));
 
     let resolved = false;
@@ -98,21 +98,21 @@ class MarstekApp extends Homey.App {
       const cleanup = () => {
         clearTimeout(timer);
         this.client.off('message', onMessage);
-        for (const topic of stateTopicToDevice.keys()) {
+        for (const topic of stateTopicToDeviceSet.keys()) {
           this.client.unsubscribe(topic);
         }
       };
 
       const onMessage = (topic, payload) => {
-        const device = stateTopicToDevice.get(topic);
-        if (!device) return;
+        const deviceSet = stateTopicToDeviceSet.get(topic);
+        if (!deviceSet) return;
 
         const text = payload.toString();
         if (!text.includes('pe=') && !text.includes('vv=')) return;
 
         resolved = true;
         cleanup();
-        resolve(device);
+        resolve(deviceSet);
       };
 
       const timer = setTimeout(() => {
@@ -123,7 +123,7 @@ class MarstekApp extends Homey.App {
 
       this.client.on('message', onMessage);
 
-      const subscriptions = Array.from(stateTopicToDevice.keys()).map(topic => new Promise((resolveSubscribe, rejectSubscribe) => {
+      const subscriptions = Array.from(stateTopicToDeviceSet.keys()).map(topic => new Promise((resolveSubscribe, rejectSubscribe) => {
         this.client.subscribe(topic, error => {
           if (error) rejectSubscribe(error);
           else resolveSubscribe();
@@ -132,8 +132,8 @@ class MarstekApp extends Homey.App {
 
       Promise.all(subscriptions)
         .then(() => {
-          for (const device of candidates) {
-            this.client.publish(device.settings.mqtt_command_topic, 'cd=01');
+          for (const deviceSet of candidates) {
+            this.client.publish(deviceSet.battery.settings.mqtt_command_topic, 'cd=01');
           }
         })
         .catch(error => {
