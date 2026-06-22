@@ -9,6 +9,30 @@ class B2500Driver extends Homey.Driver {
         return args.device.setOutputPower(args.power);
       });
 
+    this.homey.flow
+      .getConditionCard('battery_above')
+      .registerRunListener(async args => {
+        return args.device.isCapabilityAbove('measure_battery', args.value);
+      });
+
+    this.homey.flow
+      .getConditionCard('pv_power_above')
+      .registerRunListener(async args => {
+        return args.device.isCapabilityAbove('marstek_pv_power', args.value);
+      });
+
+    this.homey.flow
+      .getConditionCard('output_power_above')
+      .registerRunListener(async args => {
+        return args.device.isCapabilityAbove('marstek_output_power', args.value);
+      });
+
+    this.homey.flow
+      .getConditionCard('output_enabled')
+      .registerRunListener(async args => {
+        return args.device.isOutputEnabled(args.output);
+      });
+
     this.log('B2500 driver initialized');
   }
 
