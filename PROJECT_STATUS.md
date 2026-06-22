@@ -109,7 +109,16 @@ cd=20,md=0,a1=1,b1=0:0,e1=22:0,v1=900
 
 ## Output-Leistung
 
-Wird aktuell über Zeitplan Slot 1 gesetzt.
+Ausgangsleistung wird über Zeitpläne (`cd=20`) gesetzt.
+
+Regel für Homey-Automation:
+
+- Homey verwendet ausschließlich Slot 5 für PowerLevel-Setzungen.
+- Slot 5 wird auf 06:00–22:00 Uhr gesetzt.
+- Slot 5 wird aktiv gesetzt, wenn PowerLevel > 0 W ist.
+- Slot 5 wird deaktiviert, wenn PowerLevel = 0 W ist.
+- Slots 1–4 sind für benutzerdefinierte Zeitfenster reserviert.
+- Beim Setzen des PowerLevels über Homey werden Slots 1–4 deaktiviert, damit der Homey-Wert eindeutig wirksam ist.
 
 Nach jeder Änderung:
 
@@ -154,6 +163,7 @@ nach kurzer Verzögerung.
 - Battery-Device für Speicherstatus
 - PV-Companion-Device als Solar-Panel-Gerät
 - Output-Leistung über Preset-Dropdown
+- PowerLevel-Setzung über Slot 5 via `ScheduleService`
 - Flow Action zum Setzen der Ausgangsleistung
 - Flow Conditions für Schwellwerte
 - Flow Trigger für PV-Leistung geändert / Schwellwert überschritten / Schwellwert unterschritten
@@ -165,6 +175,7 @@ nach kurzer Verzögerung.
 - Battery- und PV-Companion-Device verwenden denselben Driver und werden über `store.role` unterschieden
 - B2500-Modellvarianten werden unter `lib/marstek/b2500` abgebildet
 - Protokollschicht getrennt nach Versionen (`v1`, `v2`)
+- Zeitplan-/Slot-Command-Logik liegt in `lib/marstek/b2500/services/ScheduleService.js`
 - Geräteklassen werden über MQTT-Antwort erkannt
 - MQTT-Verbindung zentral in der App verwaltet
 - Devices abonnieren ausschließlich ihr eigenes State Topic
@@ -191,6 +202,8 @@ lib/
         common/
           mapper.js
           parser.js
+      services/
+        ScheduleService.js
 ```
 
 ## Offene Punkte
