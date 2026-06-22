@@ -21,5 +21,34 @@
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
     "xlarge": "/assets/images/xlarge.png"
-  }
+  },
+  "settings": [
+    {
+      "id": "protocol_version",
+      "type": "text",
+      "label": {
+        "de": "Protokollversion",
+        "en": "Protocol version"
+      },
+      "value": "v2"
+    },
+    {
+      "id": "mqtt_state_topic",
+      "type": "text",
+      "label": {
+        "de": "Status Topic",
+        "en": "State topic"
+      },
+      "value": ""
+    },
+    {
+      "id": "mqtt_command_topic",
+      "type": "text",
+      "label": {
+        "de": "Command Topic",
+        "en": "Command topic"
+      },
+      "value": ""
+    }
+  ]
 }
