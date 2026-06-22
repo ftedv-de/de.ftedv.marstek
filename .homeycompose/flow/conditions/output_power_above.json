@@ -4,8 +4,8 @@
     "de": "Ausgangsleistung ist über"
   },
   "titleFormatted": {
-    "en": "Output power of [[device]] is above [[value]] W",
-    "de": "Ausgangsleistung von [[device]] ist über [[value]] W"
+    "en": "Output power is above [[value]] W",
+    "de": "Ausgangsleistung ist über [[value]] W"
   },
   "args": [
     {
