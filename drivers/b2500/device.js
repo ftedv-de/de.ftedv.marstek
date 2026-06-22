@@ -1,7 +1,10 @@
 // drivers/b2500/device.js
 const Homey = require('homey');
 const protocols = require('../../lib/marstek/b2500/protocols');
-const { buildHomeyPowerLevelScheduleBody } = require('../../lib/marstek/b2500/services/ScheduleService');
+const {
+  buildHomeyPowerLevelScheduleBody,
+  getHomeyPowerLevelFromSlots,
+} = require('../../lib/marstek/b2500/services/ScheduleService');
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -105,7 +108,7 @@ class B2500Device extends Homey.Device {
       await this.setCapabilityValue(capability, value).catch(this.error);
     }
 
-    await this.syncOutputPowerPresetFromThreshold(values.marstek_threshold_w);
+    await this.syncOutputPowerPresetFromSchedule(values.marstek_schedule_slots, values.marstek_threshold_w);
 
     const currentPvPower = Number(values.marstek_pv_power);
 
@@ -119,13 +122,24 @@ class B2500Device extends Homey.Device {
     }
   }
 
-  async syncOutputPowerPresetFromThreshold(thresholdWatts) {
+  async syncOutputPowerPresetFromSchedule(scheduleSlots, fallbackThresholdWatts) {
+    const scheduledPowerLevel = getHomeyPowerLevelFromSlots(scheduleSlots);
+
+    if (scheduledPowerLevel !== null) {
+      await this.syncOutputPowerPreset(scheduledPowerLevel);
+      return;
+    }
+
+    await this.syncOutputPowerPreset(fallbackThresholdWatts);
+  }
+
+  async syncOutputPowerPreset(watts) {
     if (!this.hasCapability('marstek_power_level_preset')) return;
 
-    const watts = Number(thresholdWatts);
-    if (!Number.isFinite(watts)) return;
+    const numberValue = Number(watts);
+    if (!Number.isFinite(numberValue)) return;
 
-    const preset = String(Math.round(watts));
+    const preset = String(Math.round(numberValue));
     if (!OUTPUT_POWER_PRESET_VALUES.has(preset)) return;
 
     if (this.getCapabilityValue('marstek_power_level_preset') === preset) return;
