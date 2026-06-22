@@ -120,6 +120,28 @@ Regel für Homey-Automation:
 - Slots 1–4 sind für benutzerdefinierte Zeitfenster reserviert.
 - Beim Setzen des PowerLevels über Homey werden Slots 1–4 deaktiviert, damit der Homey-Wert eindeutig wirksam ist.
 
+### Schedule Parsing
+
+Der MQTT-State wird auf Zeitplanparameter `a1..a5`, `b1..b5`, `e1..e5`, `v1..v5` geprüft.
+
+Diese werden intern als `marstek_schedule_slots` abgebildet:
+
+```js
+{
+  slot: 5,
+  enabled: true,
+  start: '6:0',
+  end: '22:0',
+  power: 400
+}
+```
+
+Für die Dropdown-Synchronisation gilt:
+
+- Wenn Slot 5 exakt als Homey-Slot `06:00–22:00` erkannt wird, wird das Dropdown aus Slot 5 synchronisiert.
+- Wenn Slot 5 deaktiviert ist, wird das Dropdown auf `0 W` gesetzt.
+- Wenn kein passender Homey-Slot 5 erkannt wird, bleibt `marstek_threshold_w` (`lv`) als Fallback erhalten.
+
 Nach jeder Änderung:
 
 ```
@@ -159,6 +181,7 @@ nach kurzer Verzögerung.
 - Automatische Modellerkennung über `cd=01`
 - MQTT Subscribe/Publish Infrastruktur
 - HMJ-2 State Parsing
+- Schedule Parsing für Slots 1–5
 - Homey Device Integration
 - Battery-Device für Speicherstatus
 - PV-Companion-Device als Solar-Panel-Gerät
@@ -175,7 +198,7 @@ nach kurzer Verzögerung.
 - Battery- und PV-Companion-Device verwenden denselben Driver und werden über `store.role` unterschieden
 - B2500-Modellvarianten werden unter `lib/marstek/b2500` abgebildet
 - Protokollschicht getrennt nach Versionen (`v1`, `v2`)
-- Zeitplan-/Slot-Command-Logik liegt in `lib/marstek/b2500/services/ScheduleService.js`
+- Zeitplan-/Slot-Command- und Parsing-Logik liegt in `lib/marstek/b2500/services/ScheduleService.js`
 - Geräteklassen werden über MQTT-Antwort erkannt
 - MQTT-Verbindung zentral in der App verwaltet
 - Devices abonnieren ausschließlich ihr eigenes State Topic
@@ -210,16 +233,14 @@ lib/
 
 ### Zeitplanverwaltung
 
-- Vollständige Unterstützung aller 5 Zeitslots
-- Zeitpläne aus MQTT-State auslesen
 - Zeitpläne in Homey visualisieren
 - Flow Cards für Zeitpläne
+- Schreibbare Zeitplan-Capabilities prüfen
 
 ### Powerlevel-Synchronisation
 
-- Dropdown für Ausgangsleistung mit dem aktuell wirksamen Wert synchronisieren
-- Aktiven Zeitplan auswerten
-- Preset automatisch aktualisieren, wenn der Speicher extern konfiguriert wurde
+- Aktiven Zeitplan auswerten, wenn mehrere benutzerdefinierte Slots aktiv sind
+- Preset-Verhalten definieren, wenn Slot 5 nicht dem Homey-Format entspricht
 
 ### Konfigurierbare Speichereinstellungen
 
