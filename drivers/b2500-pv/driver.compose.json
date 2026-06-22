@@ -1,0 +1,30 @@
+{
+  "id": "b2500-pv",
+  "name": {
+    "en": "Marstek B2500 PV",
+    "de": "Marstek B2500 PV"
+  },
+  "class": "solarpanel",
+  "capabilities": [
+    "measure_power",
+    "marstek_pv1_power",
+    "marstek_pv2_power",
+    "marstek_pv_power"
+  ],
+  "energy": {
+    "solarPanels": {
+      "usage": "measure_power"
+    }
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  }
+}
