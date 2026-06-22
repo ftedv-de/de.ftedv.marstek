@@ -4,8 +4,8 @@
     "de": "PV-Leistung ist über"
   },
   "titleFormatted": {
-    "en": "PV power of [[device]] is above [[value]] W",
-    "de": "PV-Leistung von [[device]] ist über [[value]] W"
+    "en": "PV power is above [[value]] W",
+    "de": "PV-Leistung ist über [[value]] W"
   },
   "args": [
     {
