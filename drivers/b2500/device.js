@@ -6,6 +6,18 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const OUTPUT_POWER_PRESET_VALUES = new Set([
+  '0',
+  '100',
+  '200',
+  '300',
+  '400',
+  '500',
+  '600',
+  '700',
+  '800',
+]);
+
 class B2500Device extends Homey.Device {
   async onInit() {
     this.settings = this.getSettings();
@@ -92,6 +104,8 @@ class B2500Device extends Homey.Device {
       await this.setCapabilityValue(capability, value).catch(this.error);
     }
 
+    await this.syncOutputPowerPresetFromThreshold(values.marstek_threshold_w);
+
     const currentPvPower = Number(values.marstek_pv_power);
 
     if (
@@ -102,6 +116,20 @@ class B2500Device extends Homey.Device {
       await this.driver.triggerPvPowerChanged(this, currentPvPower);
       await this.driver.triggerPvPowerThresholds(this, previousPvPower, currentPvPower);
     }
+  }
+
+  async syncOutputPowerPresetFromThreshold(thresholdWatts) {
+    if (!this.hasCapability('marstek_power_level_preset')) return;
+
+    const watts = Number(thresholdWatts);
+    if (!Number.isFinite(watts)) return;
+
+    const preset = String(Math.round(watts));
+    if (!OUTPUT_POWER_PRESET_VALUES.has(preset)) return;
+
+    if (this.getCapabilityValue('marstek_power_level_preset') === preset) return;
+
+    await this.setCapabilityValue('marstek_power_level_preset', preset).catch(this.error);
   }
 
   async updatePvDeviceState(values) {
