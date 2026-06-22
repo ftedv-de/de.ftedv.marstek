@@ -16,7 +16,7 @@
   <h1>Marstek B2500 hinzufügen</h1>
 
   <p class="hint">
-    Wähle die Hardware-/Protokollversion und gib die Device-ID ein. Die App testet alle passenden Geräteklassen, sendet cd=01 und fügt das Gerät hinzu, sobald eine Statusantwort empfangen wird.
+    Wähle die Hardware-/Protokollversion und gib die Device-ID ein. Die App testet alle passenden Geräteklassen, sendet cd=01 und fügt den Batteriespeicher sowie ein separates PV-Erzeuger-Gerät hinzu.
   </p>
 
   <label for="hardware_version">Hardware-Version</label>
@@ -64,12 +64,16 @@
         setStatus('Teste passende Geräteklassen und warte auf Antwort...');
 
         Homey.emit('probe_device', { hardwareVersion, deviceId })
-          .then(device => {
-            setStatus('Gerät gefunden. Füge Gerät hinzu...');
-            return Homey.createDevice(device);
+          .then(deviceSet => {
+            setStatus('Gerät gefunden. Füge Batteriespeicher hinzu...');
+            return Homey.createDevice(deviceSet.battery)
+              .then(() => {
+                setStatus('Füge PV-Erzeuger hinzu...');
+                return Homey.createDevice(deviceSet.pv);
+              });
           })
           .then(() => {
-            setStatus('Gerät wurde hinzugefügt.');
+            setStatus('Batteriespeicher und PV-Erzeuger wurden hinzugefügt.');
             Homey.done();
           })
           .catch(error => {
