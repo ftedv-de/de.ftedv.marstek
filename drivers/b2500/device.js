@@ -73,11 +73,24 @@ class B2500Device extends Homey.Device {
       return;
     }
 
+    const previousPvPower = Number(this.getCapabilityValue('marstek_pv_power'));
+
     for (const [capability, value] of Object.entries(values)) {
       if (value === null || value === undefined) continue;
       if (!this.hasCapability(capability)) continue;
 
       await this.setCapabilityValue(capability, value).catch(this.error);
+    }
+
+    const currentPvPower = Number(values.marstek_pv_power);
+
+    if (
+      Number.isFinite(currentPvPower)
+      && Number.isFinite(previousPvPower)
+      && currentPvPower !== previousPvPower
+    ) {
+      await this.driver.triggerPvPowerChanged(this, currentPvPower);
+      await this.driver.triggerPvPowerThresholds(this, previousPvPower, currentPvPower);
     }
   }
 
