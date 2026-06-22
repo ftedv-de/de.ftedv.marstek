@@ -66,6 +66,27 @@ Die App:
    - B2500 Batteriespeicher (`class: battery`)
    - B2500 PV Companion (`class: solarpanel`)
 
+### Custom Pairing View Erkenntnis
+
+Die Pairing-View `drivers/b2500/pair/start.html` verwendet bewusst:
+
+```js
+$(function () {
+  // Pairing UI initialisieren
+});
+```
+
+und nutzt das von Homey bereitgestellte globale `Homey` Objekt direkt.
+
+Wichtig für zukünftige Änderungen:
+
+- Kein explizites `<script src="/homey.js">` in dieser View verwenden.
+- Kein `onHomeyReady(Homey)` Callback verwenden.
+- Initialisierung über `$(function(){ ... })` beibehalten.
+- Backend-Kommunikation erfolgt über `Homey.emit('probe_device', ...)`.
+- Devices werden in der View mit `Homey.createDevice(...)` erzeugt.
+- Nach erfolgreichem Anlegen beider Devices wird `Homey.done()` aufgerufen.
+
 ## Bekannte Kommandos
 
 ### Status abfragen
@@ -155,6 +176,8 @@ drivers/
   b2500/
     driver.js
     device.js
+    pair/
+      start.html
 
 lib/
   marstek/
