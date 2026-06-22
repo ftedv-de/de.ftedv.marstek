@@ -4,8 +4,8 @@
     "de": "Ausgang ist aktiv"
   },
   "titleFormatted": {
-    "en": "Output [[output]] of [[device]] is enabled",
-    "de": "Ausgang [[output]] von [[device]] ist aktiv"
+    "en": "Output [[output]] is enabled",
+    "de": "Ausgang [[output]] ist aktiv"
   },
   "args": [
     {
