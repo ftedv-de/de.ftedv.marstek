@@ -11,11 +11,6 @@
     "marstek_pv2_power",
     "marstek_pv_power"
   ],
-  "energy": {
-    "solarPanels": {
-      "usage": "measure_power"
-    }
-  },
   "platforms": [
     "local"
   ],
