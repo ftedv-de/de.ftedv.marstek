@@ -10,6 +10,7 @@ class B2500Device extends Homey.Device {
   async onInit() {
     this.settings = this.getSettings();
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
+    this.role = this.getStoreValue('role') || 'battery';
 
     this.stateTopic = this.settings.mqtt_state_topic;
     this.commandTopic = this.settings.mqtt_command_topic;
@@ -20,7 +21,7 @@ class B2500Device extends Homey.Device {
       this.homey.app.subscribeDevice(this, this.stateTopic);
     }
 
-    if (this.hasCapability('marstek_power_level_preset')) {
+    if (this.role !== 'pv' && this.hasCapability('marstek_power_level_preset')) {
       this.registerCapabilityListener('marstek_power_level_preset', async value => {
         const watts = Number(value);
 
@@ -73,6 +74,15 @@ class B2500Device extends Homey.Device {
       return;
     }
 
+    if (this.role === 'pv') {
+      await this.updatePvDeviceState(values);
+      return;
+    }
+
+    await this.updateBatteryDeviceState(values);
+  }
+
+  async updateBatteryDeviceState(values) {
     const previousPvPower = Number(this.getCapabilityValue('marstek_pv_power'));
 
     for (const [capability, value] of Object.entries(values)) {
@@ -92,6 +102,22 @@ class B2500Device extends Homey.Device {
       await this.driver.triggerPvPowerChanged(this, currentPvPower);
       await this.driver.triggerPvPowerThresholds(this, previousPvPower, currentPvPower);
     }
+  }
+
+  async updatePvDeviceState(values) {
+    await this.setNumberCapability('measure_power', values.marstek_pv_power);
+    await this.setNumberCapability('marstek_pv_power', values.marstek_pv_power);
+    await this.setNumberCapability('marstek_pv1_power', values.marstek_pv1_power);
+    await this.setNumberCapability('marstek_pv2_power', values.marstek_pv2_power);
+  }
+
+  async setNumberCapability(capability, value) {
+    if (!this.hasCapability(capability)) return;
+
+    const numberValue = Number(value);
+    if (!Number.isFinite(numberValue)) return;
+
+    await this.setCapabilityValue(capability, numberValue).catch(this.error);
   }
 
   isCapabilityAbove(capability, threshold) {
@@ -128,6 +154,10 @@ class B2500Device extends Homey.Device {
   }
 
   async setOutputPower(watts) {
+    if (this.role === 'pv') {
+      throw new Error('Output power cannot be set on the PV companion device');
+    }
+
     return this.setOutputPowerSchedule(watts);
   }
 
