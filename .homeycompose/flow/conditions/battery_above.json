@@ -4,8 +4,8 @@
     "de": "Akkustand ist über"
   },
   "titleFormatted": {
-    "en": "Battery of [[device]] is above [[value]] %",
-    "de": "Akkustand von [[device]] ist über [[value]] %"
+    "en": "Battery is above [[value]] %",
+    "de": "Akkustand ist über [[value]] %"
   },
   "args": [
     {
