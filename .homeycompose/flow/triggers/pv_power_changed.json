@@ -1,0 +1,26 @@
+{
+  "title": {
+    "en": "PV power changed",
+    "de": "PV-Leistung hat sich geändert"
+  },
+  "tokens": [
+    {
+      "name": "pv_power",
+      "type": "number",
+      "title": {
+        "en": "PV power",
+        "de": "PV-Leistung"
+      },
+      "units": {
+        "en": "W"
+      }
+    }
+  ],
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=b2500"
+    }
+  ]
+}
