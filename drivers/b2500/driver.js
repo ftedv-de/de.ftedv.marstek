@@ -7,6 +7,24 @@ class B2500Driver extends Homey.Driver {
     this.pvPowerAboveThresholdTrigger = this.homey.flow.getDeviceTriggerCard('pv_power_above_threshold');
     this.pvPowerBelowThresholdTrigger = this.homey.flow.getDeviceTriggerCard('pv_power_below_threshold');
 
+    this.pvPowerAboveThresholdTrigger.registerRunListener(async (args, state) => {
+      const threshold = Number(args.threshold);
+      const previous = Number(state.previousPvPower);
+      const current = Number(state.currentPvPower);
+
+      if (!Number.isFinite(threshold) || !Number.isFinite(previous) || !Number.isFinite(current)) return false;
+      return previous <= threshold && current > threshold;
+    });
+
+    this.pvPowerBelowThresholdTrigger.registerRunListener(async (args, state) => {
+      const threshold = Number(args.threshold);
+      const previous = Number(state.previousPvPower);
+      const current = Number(state.currentPvPower);
+
+      if (!Number.isFinite(threshold) || !Number.isFinite(previous) || !Number.isFinite(current)) return false;
+      return previous >= threshold && current < threshold;
+    });
+
     this.homey.flow.getActionCard('set_output_power').registerRunListener(async args => args.device.setOutputPower(args.power));
 
     this.homey.flow.getConditionCard('battery_above').registerRunListener(async args => args.device.isCapabilityAbove('measure_battery', args.value));
