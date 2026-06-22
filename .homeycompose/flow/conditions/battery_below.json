@@ -1,0 +1,1 @@
+{"title":{"en":"Battery is below","de":"Akkustand ist unter"},"titleFormatted":{"en":"Battery of [[device]] is below [[value]] %","de":"Akkustand von [[device]] ist unter [[value]] %"},"args":[{"name":"device","type":"device","filter":"driver_id=b2500"},{"name":"value","type":"number","min":0,"max":100,"step":1}]}
