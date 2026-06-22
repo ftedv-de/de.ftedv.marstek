@@ -23,6 +23,301 @@
     "email": "ftrueck@gmail.com"
   },
   "flow": {
+    "triggers": [
+      {
+        "title": {
+          "en": "PV power rises above threshold",
+          "de": "PV-Leistung steigt über Schwellwert"
+        },
+        "titleFormatted": {
+          "en": "PV power rises above [[threshold]] W",
+          "de": "PV-Leistung steigt über [[threshold]] W"
+        },
+        "tokens": [
+          {
+            "name": "pv_power",
+            "type": "number",
+            "title": {
+              "en": "PV power",
+              "de": "PV-Leistung"
+            },
+            "units": {
+              "en": "W"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "threshold",
+            "type": "number",
+            "min": 0,
+            "max": 2500,
+            "step": 10
+          }
+        ],
+        "id": "pv_power_above_threshold"
+      },
+      {
+        "title": {
+          "en": "PV power falls below threshold",
+          "de": "PV-Leistung fällt unter Schwellwert"
+        },
+        "titleFormatted": {
+          "en": "PV power falls below [[threshold]] W",
+          "de": "PV-Leistung fällt unter [[threshold]] W"
+        },
+        "tokens": [
+          {
+            "name": "pv_power",
+            "type": "number",
+            "title": {
+              "en": "PV power",
+              "de": "PV-Leistung"
+            },
+            "units": {
+              "en": "W"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "threshold",
+            "type": "number",
+            "min": 0,
+            "max": 2500,
+            "step": 10
+          }
+        ],
+        "id": "pv_power_below_threshold"
+      },
+      {
+        "title": {
+          "en": "PV power changed",
+          "de": "PV-Leistung hat sich geändert"
+        },
+        "tokens": [
+          {
+            "name": "pv_power",
+            "type": "number",
+            "title": {
+              "en": "PV power",
+              "de": "PV-Leistung"
+            },
+            "units": {
+              "en": "W"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          }
+        ],
+        "id": "pv_power_changed"
+      }
+    ],
+    "conditions": [
+      {
+        "title": {
+          "en": "Battery is above",
+          "de": "Akkustand ist über"
+        },
+        "titleFormatted": {
+          "en": "Battery is above [[value]] %",
+          "de": "Akkustand ist über [[value]] %"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        ],
+        "id": "battery_above"
+      },
+      {
+        "title": {
+          "en": "Battery is below",
+          "de": "Akkustand ist unter"
+        },
+        "titleFormatted": {
+          "en": "Battery is below [[value]] %",
+          "de": "Akkustand ist unter [[value]] %"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        ],
+        "id": "battery_below"
+      },
+      {
+        "title": {
+          "en": "Output is enabled",
+          "de": "Ausgang ist aktiv"
+        },
+        "titleFormatted": {
+          "en": "Output [[output]] is enabled",
+          "de": "Ausgang [[output]] ist aktiv"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "output",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "1",
+                  "de": "1"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "2",
+                  "de": "2"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "output_enabled"
+      },
+      {
+        "title": {
+          "en": "Output power is above",
+          "de": "Ausgangsleistung ist über"
+        },
+        "titleFormatted": {
+          "en": "Output power is above [[value]] W",
+          "de": "Ausgangsleistung ist über [[value]] W"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 2500,
+            "step": 10
+          }
+        ],
+        "id": "output_power_above"
+      },
+      {
+        "title": {
+          "en": "Output power is below",
+          "de": "Ausgangsleistung ist unter"
+        },
+        "titleFormatted": {
+          "en": "Output power is below [[value]] W",
+          "de": "Ausgangsleistung ist unter [[value]] W"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 2500,
+            "step": 10
+          }
+        ],
+        "id": "output_power_below"
+      },
+      {
+        "title": {
+          "en": "PV power is above",
+          "de": "PV-Leistung ist über"
+        },
+        "titleFormatted": {
+          "en": "PV power is above [[value]] W",
+          "de": "PV-Leistung ist über [[value]] W"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 2500,
+            "step": 10
+          }
+        ],
+        "id": "pv_power_above"
+      },
+      {
+        "title": {
+          "en": "PV power is below",
+          "de": "PV-Leistung ist unter"
+        },
+        "titleFormatted": {
+          "en": "PV power is below [[value]] W",
+          "de": "PV-Leistung ist unter [[value]] W"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 2500,
+            "step": 10
+          }
+        ],
+        "id": "pv_power_below"
+      }
+    ],
     "actions": [
       {
         "title": {
@@ -37,7 +332,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500&capabilities=marstek_power_level_preset"
           },
           {
             "name": "power",
@@ -97,15 +392,7 @@
       },
       "pair": [
         {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_devices"
-          }
-        },
-        {
-          "id": "add_devices",
-          "template": "add_devices"
+          "id": "start"
         }
       ],
       "settings": [

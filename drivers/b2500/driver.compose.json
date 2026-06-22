@@ -43,14 +43,7 @@
   },
   "pair": [
     {
-      "id": "start",
-      "navigation": {
-        "next": "done"
-      }
-    },
-    {
-      "id": "done",
-      "template": "done"
+      "id": "start"
     }
   ]
 }
