@@ -81,6 +81,28 @@ class B2500Device extends Homey.Device {
     }
   }
 
+  isCapabilityAbove(capability, threshold) {
+    if (!this.hasCapability(capability)) return false;
+
+    const value = Number(this.getCapabilityValue(capability));
+    const compareTo = Number(threshold);
+
+    if (!Number.isFinite(value) || !Number.isFinite(compareTo)) return false;
+
+    return value > compareTo;
+  }
+
+  isOutputEnabled(output) {
+    const outputId = String(output || '').trim();
+    const capability = outputId === '2'
+      ? 'marstek_output2_enabled'
+      : 'marstek_output1_enabled';
+
+    if (!this.hasCapability(capability)) return false;
+
+    return this.getCapabilityValue(capability) === true;
+  }
+
   async setOutputPower(watts) {
     return this.setOutputPowerSchedule(watts);
   }
