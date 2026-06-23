@@ -22,6 +22,15 @@ const OUTPUT_POWER_PRESET_VALUES = new Set([
   '800',
 ]);
 
+const PV_COMPANION_CAPABILITIES = [
+  'measure_power',
+  'meter_power',
+  'marstek_pv_energy',
+  'marstek_pv1_power',
+  'marstek_pv2_power',
+  'marstek_pv_power',
+];
+
 function whToKwh(value) {
   const wh = Number(value);
   if (!Number.isFinite(wh)) return null;
@@ -33,6 +42,10 @@ class B2500Device extends Homey.Device {
     this.settings = this.getSettings();
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
     this.role = this.getStoreValue('role') || 'battery';
+
+    if (this.role === 'pv') {
+      await this.ensureCapabilities(PV_COMPANION_CAPABILITIES);
+    }
 
     this.stateTopic = this.settings.mqtt_state_topic;
     this.commandTopic = this.settings.mqtt_command_topic;
@@ -57,6 +70,16 @@ class B2500Device extends Homey.Device {
     }
 
     this.refreshStateSoon(1000).catch(this.error);
+  }
+
+  async ensureCapabilities(capabilities) {
+    for (const capability of capabilities) {
+      if (this.hasCapability(capability)) continue;
+
+      await this.addCapability(capability).catch(err => {
+        this.error(`Failed to add capability ${capability}`, err);
+      });
+    }
   }
 
   async onSettings({ oldSettings, newSettings, changedKeys }) {
