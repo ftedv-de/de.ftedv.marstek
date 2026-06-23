@@ -161,6 +161,28 @@ Das PV-Device:
 - wird über `store.role = pv` unterschieden
 - verwendet `class: solarpanel`
 - setzt `measure_power` auf die aktuelle PV-Leistung
+- setzt `meter_power` aus dem MQTT-Zähler `pt / 1000`
+- setzt zusätzlich `marstek_pv_energy` aus `pt / 1000`
+
+### PV-Energiezähler
+
+Der MQTT-Wert `pt` wird aktuell als Wh interpretiert und im PV-Companion-Device nach kWh konvertiert.
+
+Aktuelle Annahme:
+
+```text
+pt = PV Energy Counter in Wh
+meter_power = pt / 1000
+marstek_pv_energy = pt / 1000
+```
+
+Noch zu beobachten:
+
+- ob `pt` monoton/lifetime steigt
+- ob `pt` täglich zurückgesetzt wird
+- ob `pt` nach Reboot zurückgesetzt wird
+
+Falls `pt` kein Lifetime-Zähler ist, muss später ein persistenter eigener Lifetime-Zähler im Device Store ergänzt werden.
 
 ## Device Refresh
 
@@ -185,6 +207,7 @@ nach kurzer Verzögerung.
 - Homey Device Integration
 - Battery-Device für Speicherstatus
 - PV-Companion-Device als Solar-Panel-Gerät
+- PV-Energiezähler über `meter_power` und `marstek_pv_energy`
 - Output-Leistung über Preset-Dropdown
 - PowerLevel-Setzung über Slot 5 via `ScheduleService`
 - Flow Action zum Setzen der Ausgangsleistung
@@ -241,6 +264,11 @@ lib/
 
 - Aktiven Zeitplan auswerten, wenn mehrere benutzerdefinierte Slots aktiv sind
 - Preset-Verhalten definieren, wenn Slot 5 nicht dem Homey-Format entspricht
+
+### PV-Energiezähler
+
+- Prüfen, ob `pt` ein Lifetime-Zähler oder Tageszähler ist
+- Bei Tageszähler: eigenen persistenten Lifetime-Zähler ergänzen
 
 ### Konfigurierbare Speichereinstellungen
 
