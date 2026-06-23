@@ -87,25 +87,21 @@ Wichtig für zukünftige Änderungen:
 - Devices werden in der View mit `Homey.createDevice(...)` erzeugt.
 - Nach erfolgreichem Anlegen der ausgewählten Devices wird `Homey.done()` aufgerufen.
 
-## Repair / Wartungs-Views
+## Device Settings
 
-Für den B2500-Driver gibt es eine Repair-View:
+Zeitpläne werden über normale Homey Device Settings gepflegt, nicht über Repair/Maintenance.
 
-```
-drivers/b2500/repair/schedules.html
-```
-
-Diese View dient als Schedule-Editor:
-
-- Slots 1–4 sind editierbar.
-- Slot 5 ist sichtbar, aber nicht editierbar.
-- Slot 5 ist grau dargestellt und als Homey Power Override dokumentiert.
-- Die View verwendet wie die Pairing-View `$(function(){ ... })` und das globale `Homey` Objekt.
-- Backend-Kommunikation erfolgt über:
-  - `Homey.emit('get_schedules')`
-  - `Homey.emit('refresh_schedules')`
-  - `Homey.emit('save_schedules', { slots })`
-- Die Handler sind in `drivers/b2500/driver.js` über `onRepair(session, device)` registriert.
+- Slots 1–4 sind als Geräteeinstellungen editierbar:
+  - aktiv
+  - Start
+  - Ende
+  - Leistung
+- Slot 5 wird nicht editierbar gemacht.
+- Slot 5 ist per Hinweistext als Homey Power Override dokumentiert.
+- Änderungen an `schedule_slot*_...` werden in `device.js` über `onSettings()` erkannt.
+- Beim Speichern der Settings wird ein vollständiger `cd=20`-Zeitplan geschrieben.
+- Eingehende MQTT-Schedules synchronisieren die Settings für Slots 1–4 zurück.
+- Die frühere Repair-View ist nicht mehr im Driver-Manifest referenziert.
 
 ## Bekannte Kommandos
 
@@ -219,7 +215,7 @@ nach kurzer Verzögerung.
 - MQTT Subscribe/Publish Infrastruktur
 - HMJ-2 State Parsing
 - Schedule Parsing für Slots 1–5
-- Schedule Repair-View zum Bearbeiten der Slots 1–4
+- Device Settings zum Bearbeiten der Slots 1–4
 - Homey Device Integration
 - Battery-Device für Speicherstatus
 - PV-Companion-Device als Solar-Panel-Gerät
@@ -251,8 +247,6 @@ drivers/
     device.js
     pair/
       start.html
-    repair/
-      schedules.html
 
 lib/
   marstek/
@@ -270,13 +264,15 @@ lib/
         ScheduleService.js
 ```
 
+Hinweis: Die nicht mehr verwendete Datei `drivers/b2500/repair/schedules.html` kann später gelöscht werden. Sie ist nicht mehr im Manifest referenziert.
+
 ## Offene Punkte
 
 ### Zeitplanverwaltung
 
-- Repair-View gegen Homey Validate / Runtime testen
+- Device Settings gegen Homey Validate / Runtime testen
 - Flow Cards für Zeitpläne
-- Schreibbare Zeitplan-Capabilities prüfen
+- Prüfen, ob eine bessere Settings-Gruppierung möglich ist
 
 ### Powerlevel-Synchronisation
 
