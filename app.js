@@ -56,15 +56,21 @@ class MarstekApp extends Homey.App {
     });
   }
 
-  buildMarstekDeviceSet({ model, deviceId, protocolVersion = 'v2' }) {
-    return buildB2500DeviceSet({
+  buildMarstekDeviceSet({ model, deviceId, protocolVersion = 'v2', createPvDevice = true }) {
+    const deviceSet = buildB2500DeviceSet({
       model,
       deviceId,
       protocolVersion,
     });
+
+    if (!createPvDevice) {
+      delete deviceSet.pv;
+    }
+
+    return deviceSet;
   }
 
-  async probeDevice({ hardwareVersion, protocolVersion, deviceId, timeoutMs = 8000 }) {
+  async probeDevice({ hardwareVersion, protocolVersion, deviceId, createPvDevice = true, timeoutMs = 8000 }) {
     if (!this.client?.connected) {
       throw new Error('MQTT client is not connected');
     }
@@ -85,6 +91,7 @@ class MarstekApp extends Homey.App {
       model,
       deviceId: normalizedDeviceId,
       protocolVersion: selectedVersion,
+      createPvDevice,
     }));
 
     const stateTopicToDeviceSet = new Map(candidates.map(deviceSet => [
