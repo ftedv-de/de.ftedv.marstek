@@ -75,6 +75,7 @@
       "value": ""
     },
     {
+      "id": "schedule_slots_label",
       "type": "label",
       "label": {
         "en": "Schedule slots 1-4",
@@ -234,6 +235,7 @@
       "max": 2500
     },
     {
+      "id": "schedule_slot5_label",
       "type": "label",
       "label": {
         "en": "Slot 5 is reserved for Homey Power Override and is managed by the power preset dropdown and Flow Action.",
