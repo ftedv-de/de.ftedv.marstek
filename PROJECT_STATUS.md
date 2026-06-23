@@ -54,6 +54,7 @@ Benutzer gibt ein:
 
 - Hardware-Version (v1/v2)
 - Device-ID
+- Optional: PV-Erzeuger-Gerät anlegen, Default: aktiv
 
 Die App:
 
@@ -62,9 +63,8 @@ Die App:
 3. sendet `cd=01`
 4. wartet auf Antwort
 5. erkennt daraus das tatsächliche Modell
-6. legt zwei Homey-Devices an:
-   - B2500 Batteriespeicher (`class: battery`)
-   - B2500 PV Companion (`class: solarpanel`)
+6. legt immer den B2500 Batteriespeicher (`class: battery`) an
+7. legt optional zusätzlich den B2500 PV Companion (`class: solarpanel`) an
 
 ### Custom Pairing View Erkenntnis
 
@@ -85,7 +85,7 @@ Wichtig für zukünftige Änderungen:
 - Initialisierung über `$(function(){ ... })` beibehalten.
 - Backend-Kommunikation erfolgt über `Homey.emit('probe_device', ...)`.
 - Devices werden in der View mit `Homey.createDevice(...)` erzeugt.
-- Nach erfolgreichem Anlegen beider Devices wird `Homey.done()` aufgerufen.
+- Nach erfolgreichem Anlegen der ausgewählten Devices wird `Homey.done()` aufgerufen.
 
 ## Bekannte Kommandos
 
@@ -152,7 +152,7 @@ zur Aktualisierung.
 
 ## PV-Erzeugung
 
-PV-Leistung wird zusätzlich als separates Companion-Device angelegt.
+PV-Leistung kann optional als separates Companion-Device angelegt werden.
 
 Das PV-Device:
 
@@ -160,9 +160,10 @@ Das PV-Device:
 - läuft über denselben Homey-Driver `b2500`
 - wird über `store.role = pv` unterschieden
 - verwendet `class: solarpanel`
-- setzt `measure_power` auf die aktuelle PV-Leistung
+- setzt `measure_power` auf die aktuelle Gesamt-PV-Leistung
 - setzt `meter_power` aus dem MQTT-Zähler `pt / 1000`
-- setzt zusätzlich `marstek_pv_energy` aus `pt / 1000`
+- zeigt zusätzlich nur `marstek_pv1_power` und `marstek_pv2_power` für die beiden PV-Eingänge an
+- doppelte Custom-Werte `marstek_pv_power` und `marstek_pv_energy` werden am PV-Device entfernt
 
 ### PV-Energiezähler
 
@@ -173,16 +174,9 @@ Aktuelle Annahme:
 ```text
 pt = PV Energy Counter in Wh
 meter_power = pt / 1000
-marstek_pv_energy = pt / 1000
 ```
 
-Noch zu beobachten:
-
-- ob `pt` monoton/lifetime steigt
-- ob `pt` täglich zurückgesetzt wird
-- ob `pt` nach Reboot zurückgesetzt wird
-
-Falls `pt` kein Lifetime-Zähler ist, muss später ein persistenter eigener Lifetime-Zähler im Device Store ergänzt werden.
+Homey berechnet daraus die Energy-Dashboard-Statistiken.
 
 ## Device Refresh
 
@@ -200,6 +194,7 @@ nach kurzer Verzögerung.
 
 - MQTT-Verbindung über App Settings
 - Device Pairing über Hardware-Version + Device-ID
+- Optionale Anlage des PV-Companion-Devices beim Pairing
 - Automatische Modellerkennung über `cd=01`
 - MQTT Subscribe/Publish Infrastruktur
 - HMJ-2 State Parsing
@@ -207,7 +202,7 @@ nach kurzer Verzögerung.
 - Homey Device Integration
 - Battery-Device für Speicherstatus
 - PV-Companion-Device als Solar-Panel-Gerät
-- PV-Energiezähler über `meter_power` und `marstek_pv_energy`
+- PV-Energiezähler über `meter_power`
 - Output-Leistung über Preset-Dropdown
 - PowerLevel-Setzung über Slot 5 via `ScheduleService`
 - Flow Action zum Setzen der Ausgangsleistung
@@ -264,11 +259,6 @@ lib/
 
 - Aktiven Zeitplan auswerten, wenn mehrere benutzerdefinierte Slots aktiv sind
 - Preset-Verhalten definieren, wenn Slot 5 nicht dem Homey-Format entspricht
-
-### PV-Energiezähler
-
-- Prüfen, ob `pt` ein Lifetime-Zähler oder Tageszähler ist
-- Bei Tageszähler: eigenen persistenten Lifetime-Zähler ergänzen
 
 ### Konfigurierbare Speichereinstellungen
 
