@@ -87,6 +87,26 @@ Wichtig für zukünftige Änderungen:
 - Devices werden in der View mit `Homey.createDevice(...)` erzeugt.
 - Nach erfolgreichem Anlegen der ausgewählten Devices wird `Homey.done()` aufgerufen.
 
+## Repair / Wartungs-Views
+
+Für den B2500-Driver gibt es eine Repair-View:
+
+```
+drivers/b2500/repair/schedules.html
+```
+
+Diese View dient als Schedule-Editor:
+
+- Slots 1–4 sind editierbar.
+- Slot 5 ist sichtbar, aber nicht editierbar.
+- Slot 5 ist grau dargestellt und als Homey Power Override dokumentiert.
+- Die View verwendet wie die Pairing-View `$(function(){ ... })` und das globale `Homey` Objekt.
+- Backend-Kommunikation erfolgt über:
+  - `Homey.emit('get_schedules')`
+  - `Homey.emit('refresh_schedules')`
+  - `Homey.emit('save_schedules', { slots })`
+- Die Handler sind in `drivers/b2500/driver.js` über `onRepair(session, device)` registriert.
+
 ## Bekannte Kommandos
 
 ### Status abfragen
@@ -199,6 +219,7 @@ nach kurzer Verzögerung.
 - MQTT Subscribe/Publish Infrastruktur
 - HMJ-2 State Parsing
 - Schedule Parsing für Slots 1–5
+- Schedule Repair-View zum Bearbeiten der Slots 1–4
 - Homey Device Integration
 - Battery-Device für Speicherstatus
 - PV-Companion-Device als Solar-Panel-Gerät
@@ -230,6 +251,8 @@ drivers/
     device.js
     pair/
       start.html
+    repair/
+      schedules.html
 
 lib/
   marstek/
@@ -251,7 +274,7 @@ lib/
 
 ### Zeitplanverwaltung
 
-- Zeitpläne in Homey visualisieren
+- Repair-View gegen Homey Validate / Runtime testen
 - Flow Cards für Zeitpläne
 - Schreibbare Zeitplan-Capabilities prüfen
 
