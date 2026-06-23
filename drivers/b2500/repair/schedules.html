@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <style>
     body { font-family: sans-serif; padding: 1rem; }
-    h1 { margin-top: 0; }
+    h1 { margin: 0; }
+    h2 { font-size: 1.05rem; margin: 1rem 0 .25rem 0; }
     .hint { color: #666; font-size: .9rem; line-height: 1.35; }
     .slot { border: 1px solid #ddd; border-radius: .5rem; padding: .75rem; margin-top: .75rem; }
-    .slot h2 { font-size: 1rem; margin: 0 0 .5rem 0; }
+    .slot h3 { font-size: 1rem; margin: 0 0 .5rem 0; }
     .slot.disabled { background: #f4f4f4; color: #777; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: .5rem; }
     label { display: block; font-weight: 600; margin-top: .5rem; }
@@ -21,7 +22,8 @@
   </style>
 </head>
 <body>
-  <h1>Zeitpläne bearbeiten</h1>
+  <h1>Marstek Configuration</h1>
+  <h2>Schedule Management</h2>
 
   <p class="hint">
     Slots 1–4 sind für eigene Zeitfenster vorgesehen und können hier bearbeitet werden.
@@ -78,7 +80,7 @@
         wrapper.className = editable ? 'slot' : 'slot disabled';
         wrapper.dataset.slot = String(slotNumber);
 
-        const title = document.createElement('h2');
+        const title = document.createElement('h3');
         title.textContent = editable ? `Slot ${slotNumber}` : 'Slot 5 – Homey Power Override';
         wrapper.appendChild(title);
 
