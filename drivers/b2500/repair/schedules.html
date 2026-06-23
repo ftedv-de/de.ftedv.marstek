@@ -1,0 +1,213 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: sans-serif; padding: 1rem; }
+    h1 { margin-top: 0; }
+    .hint { color: #666; font-size: .9rem; line-height: 1.35; }
+    .slot { border: 1px solid #ddd; border-radius: .5rem; padding: .75rem; margin-top: .75rem; }
+    .slot h2 { font-size: 1rem; margin: 0 0 .5rem 0; }
+    .slot.disabled { background: #f4f4f4; color: #777; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: .5rem; }
+    label { display: block; font-weight: 600; margin-top: .5rem; }
+    input { width: 100%; box-sizing: border-box; padding: .45rem; }
+    input[type="checkbox"] { width: auto; margin-right: .5rem; }
+    .checkbox-label { display: flex; align-items: center; font-weight: 600; }
+    .actions { display: flex; gap: .5rem; margin-top: 1rem; }
+    button { padding: .55rem 1rem; }
+    .status { margin-top: 1rem; min-height: 1.2rem; }
+    .readonly-note { margin-top: .5rem; font-size: .85rem; color: #777; }
+  </style>
+</head>
+<body>
+  <h1>Zeitpläne bearbeiten</h1>
+
+  <p class="hint">
+    Slots 1–4 sind für eigene Zeitfenster vorgesehen und können hier bearbeitet werden.
+    Slot 5 wird von Homey für den Power Override verwendet und ist deshalb nur sichtbar, aber nicht editierbar.
+  </p>
+
+  <div id="slots"></div>
+
+  <div class="actions">
+    <button id="reload">Neu laden</button>
+    <button id="save">Speichern</button>
+  </div>
+
+  <div id="status" class="status"></div>
+
+  <script type="application/javascript">
+    $(function(){
+      const slotsEl = document.getElementById('slots');
+      const reloadButton = document.getElementById('reload');
+      const saveButton = document.getElementById('save');
+      const statusEl = document.getElementById('status');
+
+      let currentSlots = [];
+
+      function setStatus(text) {
+        statusEl.textContent = text || '';
+      }
+
+      function getSlot(slotNumber) {
+        return currentSlots.find(slot => Number(slot.slot) === Number(slotNumber)) || {
+          slot: slotNumber,
+          enabled: false,
+          start: '0:0',
+          end: '0:0',
+          power: 80,
+        };
+      }
+
+      function toInputTime(value) {
+        const parts = String(value || '0:0').split(':');
+        const hour = String(Number(parts[0] || 0)).padStart(2, '0');
+        const minute = String(Number(parts[1] || 0)).padStart(2, '0');
+        return `${hour}:${minute}`;
+      }
+
+      function fromInputTime(value) {
+        const parts = String(value || '00:00').split(':');
+        return `${Number(parts[0] || 0)}:${Number(parts[1] || 0)}`;
+      }
+
+      function renderSlot(slotNumber, editable) {
+        const slot = getSlot(slotNumber);
+        const wrapper = document.createElement('div');
+        wrapper.className = editable ? 'slot' : 'slot disabled';
+        wrapper.dataset.slot = String(slotNumber);
+
+        const title = document.createElement('h2');
+        title.textContent = editable ? `Slot ${slotNumber}` : 'Slot 5 – Homey Power Override';
+        wrapper.appendChild(title);
+
+        const enabledLabel = document.createElement('label');
+        enabledLabel.className = 'checkbox-label';
+        const enabled = document.createElement('input');
+        enabled.type = 'checkbox';
+        enabled.name = 'enabled';
+        enabled.checked = slot.enabled === true;
+        enabled.disabled = !editable;
+        enabledLabel.appendChild(enabled);
+        enabledLabel.appendChild(document.createTextNode('Aktiv'));
+        wrapper.appendChild(enabledLabel);
+
+        const row1 = document.createElement('div');
+        row1.className = 'row';
+
+        const startLabel = document.createElement('label');
+        startLabel.textContent = 'Start';
+        const start = document.createElement('input');
+        start.type = 'time';
+        start.name = 'start';
+        start.value = toInputTime(slot.start);
+        start.disabled = !editable;
+        startLabel.appendChild(start);
+        row1.appendChild(startLabel);
+
+        const endLabel = document.createElement('label');
+        endLabel.textContent = 'Ende';
+        const end = document.createElement('input');
+        end.type = 'time';
+        end.name = 'end';
+        end.value = toInputTime(slot.end);
+        end.disabled = !editable;
+        endLabel.appendChild(end);
+        row1.appendChild(endLabel);
+
+        wrapper.appendChild(row1);
+
+        const powerLabel = document.createElement('label');
+        powerLabel.textContent = 'Leistung (W)';
+        const power = document.createElement('input');
+        power.type = 'number';
+        power.name = 'power';
+        power.min = '0';
+        power.max = '2500';
+        power.step = '10';
+        power.value = Number(slot.power || 80);
+        power.disabled = !editable;
+        powerLabel.appendChild(power);
+        wrapper.appendChild(powerLabel);
+
+        if (!editable) {
+          const note = document.createElement('div');
+          note.className = 'readonly-note';
+          note.textContent = 'Dieser Slot wird automatisch vom PowerLevel-Dropdown und der Flow Action verwaltet.';
+          wrapper.appendChild(note);
+        }
+
+        return wrapper;
+      }
+
+      function render() {
+        slotsEl.innerHTML = '';
+        for (let slot = 1; slot <= 4; slot += 1) {
+          slotsEl.appendChild(renderSlot(slot, true));
+        }
+        slotsEl.appendChild(renderSlot(5, false));
+      }
+
+      function collectUserSlots() {
+        const result = [];
+
+        for (let slot = 1; slot <= 4; slot += 1) {
+          const wrapper = slotsEl.querySelector(`[data-slot="${slot}"]`);
+          result.push({
+            slot,
+            enabled: wrapper.querySelector('[name="enabled"]').checked,
+            start: fromInputTime(wrapper.querySelector('[name="start"]').value),
+            end: fromInputTime(wrapper.querySelector('[name="end"]').value),
+            power: Number(wrapper.querySelector('[name="power"]').value),
+          });
+        }
+
+        return result;
+      }
+
+      function load(refresh) {
+        setStatus(refresh ? 'Lade Zeitpläne vom Gerät...' : 'Lade Zeitpläne...');
+        const event = refresh ? 'refresh_schedules' : 'get_schedules';
+
+        return Homey.emit(event)
+          .then(slots => {
+            currentSlots = Array.isArray(slots) ? slots : [];
+            render();
+            setStatus('Zeitpläne geladen.');
+          })
+          .catch(error => {
+            Homey.alert(error && error.message ? error.message : String(error));
+            setStatus('Zeitpläne konnten nicht geladen werden.');
+          });
+      }
+
+      reloadButton.addEventListener('click', () => {
+        load(true);
+      });
+
+      saveButton.addEventListener('click', () => {
+        const slots = collectUserSlots();
+        saveButton.disabled = true;
+        setStatus('Speichere Zeitpläne...');
+
+        Homey.emit('save_schedules', { slots })
+          .then(updatedSlots => {
+            currentSlots = Array.isArray(updatedSlots) ? updatedSlots : [];
+            render();
+            setStatus('Zeitpläne gespeichert.');
+          })
+          .catch(error => {
+            Homey.alert(error && error.message ? error.message : String(error));
+            setStatus('Zeitpläne konnten nicht gespeichert werden.');
+          })
+          .finally(() => {
+            saveButton.disabled = false;
+          });
+      });
+
+      load(false);
+    });
+  </script>
+</body>
+</html>
