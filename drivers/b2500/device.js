@@ -182,6 +182,7 @@ class B2500Device extends Homey.Device {
 
   async refreshScheduleSlots() {
     await this.refreshState();
+    await delay(1500);
     return this.getScheduleSlots();
   }
 
@@ -196,7 +197,9 @@ class B2500Device extends Homey.Device {
 
     await this.sendCommand(command);
     this.lastScheduleSlots = nextSlots;
-    await this.refreshStateSoon(1000);
+    await delay(1000);
+    await this.refreshState();
+    await delay(1500);
 
     return this.getScheduleSlots();
   }
@@ -301,7 +304,8 @@ class B2500Device extends Homey.Device {
     const command = this.protocol.setTimerSchedule(commandBody);
 
     await this.sendCommand(command);
-    await this.refreshStateSoon(1000);
+    await delay(1000);
+    await this.refreshState();
   }
 
   async refreshStateSoon(delayMs = 0) {
