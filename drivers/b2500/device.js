@@ -22,6 +22,12 @@ const OUTPUT_POWER_PRESET_VALUES = new Set([
   '800',
 ]);
 
+function whToKwh(value) {
+  const wh = Number(value);
+  if (!Number.isFinite(wh)) return null;
+  return wh / 1000;
+}
+
 class B2500Device extends Homey.Device {
   async onInit() {
     this.settings = this.getSettings();
@@ -150,11 +156,14 @@ class B2500Device extends Homey.Device {
   async updatePvDeviceState(values) {
     const previousPvPower = Number(this.getCapabilityValue('marstek_pv_power'));
     const currentPvPower = Number(values.marstek_pv_power);
+    const pvEnergyKwh = whToKwh(values.marstek_pv_energy_wh);
 
     await this.setNumberCapability('measure_power', values.marstek_pv_power);
     await this.setNumberCapability('marstek_pv_power', values.marstek_pv_power);
     await this.setNumberCapability('marstek_pv1_power', values.marstek_pv1_power);
     await this.setNumberCapability('marstek_pv2_power', values.marstek_pv2_power);
+    await this.setNumberCapability('meter_power', pvEnergyKwh);
+    await this.setNumberCapability('marstek_pv_energy', pvEnergyKwh);
 
     if (
       Number.isFinite(currentPvPower)
