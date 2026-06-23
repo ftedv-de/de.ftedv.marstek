@@ -89,19 +89,28 @@ Wichtig für zukünftige Änderungen:
 
 ## Device Settings
 
-Zeitpläne werden über normale Homey Device Settings gepflegt, nicht über Repair/Maintenance.
+Normale Homey Device Settings bleiben für einfache Einzelwerte vorgesehen, z. B. MQTT-Topics und später DoD, Ladegrenzen oder Betriebsmodi.
 
-- Slots 1–4 sind als Geräteeinstellungen editierbar:
-  - aktiv
-  - Start
-  - Ende
-  - Leistung
-- Slot 5 wird nicht editierbar gemacht.
-- Slot 5 ist per Hinweistext als Homey Power Override dokumentiert.
-- Änderungen an `schedule_slot*_...` werden in `device.js` über `onSettings()` erkannt.
-- Beim Speichern der Settings wird ein vollständiger `cd=20`-Zeitplan geschrieben.
-- Eingehende MQTT-Schedules synchronisieren die Settings für Slots 1–4 zurück.
-- Die frühere Repair-View ist nicht mehr im Driver-Manifest referenziert.
+Zeitpläne werden nicht als einzelne Device Settings gepflegt, weil das UI dafür zu unübersichtlich ist.
+
+## Repair / Marstek Configuration
+
+Die Zeitplanverwaltung erfolgt über die Custom Repair View:
+
+```
+drivers/b2500/repair/schedules.html
+```
+
+Die View ist als `Marstek Configuration` / `Schedule Management` beschriftet.
+
+- Slots 1–4 sind editierbar.
+- Slot 5 ist sichtbar, aber nicht editierbar.
+- Slot 5 ist grau dargestellt und als Homey Power Override dokumentiert.
+- Backend-Kommunikation erfolgt über:
+  - `Homey.emit('get_schedules')`
+  - `Homey.emit('refresh_schedules')`
+  - `Homey.emit('save_schedules', { slots })`
+- Die Handler sind in `drivers/b2500/driver.js` über `onRepair(session, device)` registriert.
 
 ## Bekannte Kommandos
 
@@ -245,7 +254,7 @@ nach kurzer Verzögerung.
 - MQTT Subscribe/Publish Infrastruktur
 - HMJ-2 State Parsing
 - Schedule Parsing für Slots 1–5 über MQTT-State-Felder `d/e/f/h`
-- Device Settings zum Bearbeiten der Slots 1–4
+- Custom Repair View zum Bearbeiten der Slots 1–4
 - Homey Device Integration
 - Battery-Device für Speicherstatus
 - PV-Companion-Device als Solar-Panel-Gerät
@@ -277,6 +286,8 @@ drivers/
     device.js
     pair/
       start.html
+    repair/
+      schedules.html
 
 lib/
   marstek/
@@ -294,15 +305,13 @@ lib/
         ScheduleService.js
 ```
 
-Hinweis: Die nicht mehr verwendete Datei `drivers/b2500/repair/schedules.html` kann später gelöscht werden. Sie ist nicht mehr im Manifest referenziert.
-
 ## Offene Punkte
 
 ### Zeitplanverwaltung
 
-- Device Settings gegen Homey Validate / Runtime testen
+- Repair View gegen Homey Validate / Runtime testen
 - Flow Cards für Zeitpläne
-- Prüfen, ob eine bessere Settings-Gruppierung möglich ist
+- Prüfen, ob später weitere komplexe Konfigurationsbereiche in dieselbe Repair View integriert werden sollen
 
 ### Powerlevel-Synchronisation
 
@@ -315,7 +324,8 @@ Wenn technisch möglich:
 
 - Alle verfügbaren Speicherparameter als Homey Capabilities bereitstellen
 - Schreibbare (`setable`) Capabilities verwenden
-- Konfiguration direkt über die Homey Geräteansicht ermöglichen
+- Einfache Einzelwerte als Device Settings anbieten
+- Komplexe Tabellen/Strukturen über die Marstek Configuration Repair View abbilden
 
 Beispiele:
 
