@@ -45,5 +45,10 @@
     {
       "id": "start"
     }
+  ],
+  "repair": [
+    {
+      "id": "schedules"
+    }
   ]
 }
