@@ -46,9 +46,199 @@
       "id": "start"
     }
   ],
-  "repair": [
+  "settings": [
     {
-      "id": "schedules"
+      "id": "protocol_version",
+      "type": "text",
+      "label": {
+        "en": "Protocol version",
+        "de": "Protokollversion"
+      },
+      "value": "v2"
+    },
+    {
+      "id": "mqtt_state_topic",
+      "type": "text",
+      "label": {
+        "en": "MQTT state topic",
+        "de": "MQTT Status-Topic"
+      },
+      "value": ""
+    },
+    {
+      "id": "mqtt_command_topic",
+      "type": "text",
+      "label": {
+        "en": "MQTT command topic",
+        "de": "MQTT Command-Topic"
+      },
+      "value": ""
+    },
+    {
+      "type": "label",
+      "label": {
+        "en": "Schedule slots 1-4",
+        "de": "Zeitplan-Slots 1-4"
+      }
+    },
+    {
+      "id": "schedule_slot1_enabled",
+      "type": "checkbox",
+      "label": {
+        "en": "Slot 1 enabled",
+        "de": "Slot 1 aktiv"
+      },
+      "value": false
+    },
+    {
+      "id": "schedule_slot1_start",
+      "type": "text",
+      "label": {
+        "en": "Slot 1 start (H:M)",
+        "de": "Slot 1 Start (H:M)"
+      },
+      "value": "0:0"
+    },
+    {
+      "id": "schedule_slot1_end",
+      "type": "text",
+      "label": {
+        "en": "Slot 1 end (H:M)",
+        "de": "Slot 1 Ende (H:M)"
+      },
+      "value": "0:0"
+    },
+    {
+      "id": "schedule_slot1_power",
+      "type": "number",
+      "label": {
+        "en": "Slot 1 power (W)",
+        "de": "Slot 1 Leistung (W)"
+      },
+      "value": 80,
+      "min": 0,
+      "max": 2500
+    },
+    {
+      "id": "schedule_slot2_enabled",
+      "type": "checkbox",
+      "label": {
+        "en": "Slot 2 enabled",
+        "de": "Slot 2 aktiv"
+      },
+      "value": false
+    },
+    {
+      "id": "schedule_slot2_start",
+      "type": "text",
+      "label": {
+        "en": "Slot 2 start (H:M)",
+        "de": "Slot 2 Start (H:M)"
+      },
+      "value": "0:0"
+    },
+    {
+      "id": "schedule_slot2_end",
+      "type": "text",
+      "label": {
+        "en": "Slot 2 end (H:M)",
+        "de": "Slot 2 Ende (H:M)"
+      },
+      "value": "0:0"
+    },
+    {
+      "id": "schedule_slot2_power",
+      "type": "number",
+      "label": {
+        "en": "Slot 2 power (W)",
+        "de": "Slot 2 Leistung (W)"
+      },
+      "value": 80,
+      "min": 0,
+      "max": 2500
+    },
+    {
+      "id": "schedule_slot3_enabled",
+      "type": "checkbox",
+      "label": {
+        "en": "Slot 3 enabled",
+        "de": "Slot 3 aktiv"
+      },
+      "value": false
+    },
+    {
+      "id": "schedule_slot3_start",
+      "type": "text",
+      "label": {
+        "en": "Slot 3 start (H:M)",
+        "de": "Slot 3 Start (H:M)"
+      },
+      "value": "0:0"
+    },
+    {
+      "id": "schedule_slot3_end",
+      "type": "text",
+      "label": {
+        "en": "Slot 3 end (H:M)",
+        "de": "Slot 3 Ende (H:M)"
+      },
+      "value": "0:0"
+    },
+    {
+      "id": "schedule_slot3_power",
+      "type": "number",
+      "label": {
+        "en": "Slot 3 power (W)",
+        "de": "Slot 3 Leistung (W)"
+      },
+      "value": 80,
+      "min": 0,
+      "max": 2500
+    },
+    {
+      "id": "schedule_slot4_enabled",
+      "type": "checkbox",
+      "label": {
+        "en": "Slot 4 enabled",
+        "de": "Slot 4 aktiv"
+      },
+      "value": false
+    },
+    {
+      "id": "schedule_slot4_start",
+      "type": "text",
+      "label": {
+        "en": "Slot 4 start (H:M)",
+        "de": "Slot 4 Start (H:M)"
+      },
+      "value": "0:0"
+    },
+    {
+      "id": "schedule_slot4_end",
+      "type": "text",
+      "label": {
+        "en": "Slot 4 end (H:M)",
+        "de": "Slot 4 Ende (H:M)"
+      },
+      "value": "0:0"
+    },
+    {
+      "id": "schedule_slot4_power",
+      "type": "number",
+      "label": {
+        "en": "Slot 4 power (W)",
+        "de": "Slot 4 Leistung (W)"
+      },
+      "value": 80,
+      "min": 0,
+      "max": 2500
+    },
+    {
+      "type": "label",
+      "label": {
+        "en": "Slot 5 is reserved for Homey Power Override and is managed by the power preset dropdown and Flow Action.",
+        "de": "Slot 5 ist für den Homey Power Override reserviert und wird durch das PowerLevel-Dropdown sowie die Flow Action verwaltet."
+      }
     }
   ]
 }
