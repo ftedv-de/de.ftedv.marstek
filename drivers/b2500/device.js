@@ -36,10 +36,16 @@ const PV_COMPANION_DEPRECATED_CAPABILITIES = [
   'marstek_pv_energy',
 ];
 
+const SCHEDULE_SETTING_PREFIX = 'schedule_slot';
+
 function whToKwh(value) {
   const wh = Number(value);
   if (!Number.isFinite(wh)) return null;
   return wh / 1000;
+}
+
+function isScheduleSetting(key) {
+  return String(key || '').startsWith(SCHEDULE_SETTING_PREFIX);
 }
 
 class B2500Device extends Homey.Device {
@@ -48,6 +54,7 @@ class B2500Device extends Homey.Device {
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
     this.role = this.getStoreValue('role') || 'battery';
     this.lastScheduleSlots = [];
+    this.isSyncingScheduleSettings = false;
 
     if (this.role === 'pv') {
       await this.ensureCapabilities(PV_COMPANION_CAPABILITIES);
@@ -100,6 +107,8 @@ class B2500Device extends Homey.Device {
   }
 
   async onSettings({ oldSettings, newSettings, changedKeys }) {
+    this.settings = newSettings;
+
     if (changedKeys.includes('protocol_version')) {
       this.protocol = protocols.create(newSettings.protocol_version || 'v2');
     }
@@ -121,6 +130,14 @@ class B2500Device extends Homey.Device {
     if (changedKeys.includes('mqtt_command_topic')) {
       this.commandTopic = newSettings.mqtt_command_topic;
       this.refreshStateSoon(1000).catch(this.error);
+    }
+
+    if (
+      this.role !== 'pv'
+      && !this.isSyncingScheduleSettings
+      && changedKeys.some(isScheduleSetting)
+    ) {
+      await this.saveUserScheduleSlots(this.getUserScheduleSlotsFromSettings(newSettings));
     }
   }
 
@@ -158,6 +175,7 @@ class B2500Device extends Homey.Device {
       await this.setCapabilityValue(capability, value).catch(this.error);
     }
 
+    await this.syncScheduleSettings(values.marstek_schedule_slots);
     await this.syncOutputPowerPresetFromSchedule(values.marstek_schedule_slots, values.marstek_threshold_w);
 
     const currentPvPower = Number(values.marstek_pv_power);
@@ -178,6 +196,57 @@ class B2500Device extends Homey.Device {
     }
 
     return Array.isArray(this.lastScheduleSlots) ? this.lastScheduleSlots : [];
+  }
+
+  getUserScheduleSlotsFromSettings(settings = this.getSettings()) {
+    const slots = [];
+
+    for (let slot = 1; slot <= 4; slot += 1) {
+      slots.push({
+        slot,
+        enabled: settings[`schedule_slot${slot}_enabled`] === true,
+        start: settings[`schedule_slot${slot}_start`] || '0:0',
+        end: settings[`schedule_slot${slot}_end`] || '0:0',
+        power: Number(settings[`schedule_slot${slot}_power`] ?? 80),
+      });
+    }
+
+    return slots;
+  }
+
+  buildScheduleSettingsFromSlots(slots) {
+    const result = {};
+
+    for (let slotNumber = 1; slotNumber <= 4; slotNumber += 1) {
+      const slot = Array.isArray(slots)
+        ? slots.find(item => Number(item.slot) === slotNumber)
+        : null;
+
+      result[`schedule_slot${slotNumber}_enabled`] = slot?.enabled === true;
+      result[`schedule_slot${slotNumber}_start`] = slot?.start || '0:0';
+      result[`schedule_slot${slotNumber}_end`] = slot?.end || '0:0';
+      result[`schedule_slot${slotNumber}_power`] = Number(slot?.power ?? 80);
+    }
+
+    return result;
+  }
+
+  async syncScheduleSettings(slots) {
+    if (!Array.isArray(slots) || this.role === 'pv') return;
+
+    const nextSettings = this.buildScheduleSettingsFromSlots(slots);
+    const currentSettings = this.getSettings();
+    const changed = Object.entries(nextSettings)
+      .some(([key, value]) => currentSettings[key] !== value);
+
+    if (!changed) return;
+
+    this.isSyncingScheduleSettings = true;
+    try {
+      await this.setSettings(nextSettings);
+    } finally {
+      this.isSyncingScheduleSettings = false;
+    }
   }
 
   async refreshScheduleSlots() {
