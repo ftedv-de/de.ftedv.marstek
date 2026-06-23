@@ -25,10 +25,13 @@ const OUTPUT_POWER_PRESET_VALUES = new Set([
 const PV_COMPANION_CAPABILITIES = [
   'measure_power',
   'meter_power',
-  'marstek_pv_energy',
   'marstek_pv1_power',
   'marstek_pv2_power',
+];
+
+const PV_COMPANION_DEPRECATED_CAPABILITIES = [
   'marstek_pv_power',
+  'marstek_pv_energy',
 ];
 
 function whToKwh(value) {
@@ -45,6 +48,7 @@ class B2500Device extends Homey.Device {
 
     if (this.role === 'pv') {
       await this.ensureCapabilities(PV_COMPANION_CAPABILITIES);
+      await this.removeCapabilities(PV_COMPANION_DEPRECATED_CAPABILITIES);
     }
 
     this.stateTopic = this.settings.mqtt_state_topic;
@@ -78,6 +82,16 @@ class B2500Device extends Homey.Device {
 
       await this.addCapability(capability).catch(err => {
         this.error(`Failed to add capability ${capability}`, err);
+      });
+    }
+  }
+
+  async removeCapabilities(capabilities) {
+    for (const capability of capabilities) {
+      if (!this.hasCapability(capability)) continue;
+
+      await this.removeCapability(capability).catch(err => {
+        this.error(`Failed to remove capability ${capability}`, err);
       });
     }
   }
@@ -177,16 +191,14 @@ class B2500Device extends Homey.Device {
   }
 
   async updatePvDeviceState(values) {
-    const previousPvPower = Number(this.getCapabilityValue('marstek_pv_power'));
+    const previousPvPower = Number(this.getCapabilityValue('measure_power'));
     const currentPvPower = Number(values.marstek_pv_power);
     const pvEnergyKwh = whToKwh(values.marstek_pv_energy_wh);
 
     await this.setNumberCapability('measure_power', values.marstek_pv_power);
-    await this.setNumberCapability('marstek_pv_power', values.marstek_pv_power);
     await this.setNumberCapability('marstek_pv1_power', values.marstek_pv1_power);
     await this.setNumberCapability('marstek_pv2_power', values.marstek_pv2_power);
     await this.setNumberCapability('meter_power', pvEnergyKwh);
-    await this.setNumberCapability('marstek_pv_energy', pvEnergyKwh);
 
     if (
       Number.isFinite(currentPvPower)
