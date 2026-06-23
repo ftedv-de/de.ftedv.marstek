@@ -6,6 +6,8 @@
     body { font-family: sans-serif; padding: 1rem; }
     label { display: block; margin-top: 1rem; font-weight: 600; }
     input, select { width: 100%; box-sizing: border-box; padding: .45rem; }
+    input[type="checkbox"] { width: auto; margin-right: .5rem; }
+    .checkbox-row { display: flex; align-items: center; margin-top: 1rem; font-weight: 400; }
     button { margin-top: 1rem; padding: .55rem 1rem; }
     .hint { color: #666; margin-top: .5rem; font-size: .9rem; }
     .status { margin-top: 1rem; }
@@ -15,7 +17,7 @@
   <h1>Marstek B2500 hinzufügen</h1>
 
   <p class="hint">
-    Wähle die Hardware-/Protokollversion und gib die Device-ID ein. Die App testet alle passenden Geräteklassen, sendet cd=01 und fügt den Batteriespeicher sowie ein separates PV-Erzeuger-Gerät hinzu.
+    Wähle die Hardware-/Protokollversion und gib die Device-ID ein. Die App testet alle passenden Geräteklassen, sendet cd=01 und fügt den Batteriespeicher hinzu. Optional kann zusätzlich ein separates PV-Erzeuger-Gerät angelegt werden.
   </p>
 
   <label for="hardware_version">Hardware-Version</label>
@@ -27,6 +29,11 @@
   <label for="device_id">Device-ID</label>
   <input id="device_id" type="text" maxlength="12" placeholder="18cedfd22770">
 
+  <label class="checkbox-row" for="create_pv_device">
+    <input id="create_pv_device" type="checkbox" checked>
+    PV-Erzeuger-Gerät anlegen
+  </label>
+
   <button id="probe">Gerät prüfen und hinzufügen</button>
 
   <div id="status" class="status"></div>
@@ -35,6 +42,7 @@
     $(function(){
       const hardwareVersionEl = document.getElementById('hardware_version');
       const deviceIdEl = document.getElementById('device_id');
+      const createPvDeviceEl = document.getElementById('create_pv_device');
       const button = document.getElementById('probe');
       const status = document.getElementById('status');
 
@@ -45,6 +53,7 @@
       button.addEventListener('click', () => {
         const hardwareVersion = hardwareVersionEl.value;
         const deviceId = deviceIdEl.value.trim().toLowerCase();
+        const createPvDevice = createPvDeviceEl.checked;
 
         if (!/^[a-f0-9]{12}$/.test(deviceId)) {
           Homey.alert('Bitte eine 12-stellige hexadezimale Device-ID eingeben.');
@@ -54,17 +63,20 @@
         button.disabled = true;
         setStatus('Teste passende Geräteklassen und warte auf Antwort...');
 
-        Homey.emit('probe_device', { hardwareVersion, deviceId })
+        Homey.emit('probe_device', { hardwareVersion, deviceId, createPvDevice })
           .then(deviceSet => {
             setStatus('Gerät gefunden. Füge Batteriespeicher hinzu...');
             return Homey.createDevice(deviceSet.battery)
               .then(() => {
+                if (!deviceSet.pv) return;
                 setStatus('Füge PV-Erzeuger hinzu...');
                 return Homey.createDevice(deviceSet.pv);
               });
           })
           .then(() => {
-            setStatus('Batteriespeicher und PV-Erzeuger wurden hinzugefügt.');
+            setStatus(createPvDevice
+              ? 'Batteriespeicher und PV-Erzeuger wurden hinzugefügt.'
+              : 'Batteriespeicher wurde hinzugefügt.');
             Homey.done();
           })
           .catch(error => {
