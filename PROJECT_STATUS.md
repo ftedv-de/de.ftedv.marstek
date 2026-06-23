@@ -117,10 +117,19 @@ cd=01
 cd=20
 ```
 
-Beispiel:
+Schreibformat für Zeitpläne:
 
+```text
+cd=20,md=0,a1=1,b1=6:0,e1=22:0,v1=600
 ```
-cd=20,md=0,a1=1,b1=0:0,e1=22:0,v1=900
+
+Dabei gilt beim Schreiben:
+
+```text
+aX = aktiv
+bX = Start
+eX = Ende
+vX = Leistung
 ```
 
 ## Output-Leistung
@@ -138,19 +147,40 @@ Regel für Homey-Automation:
 
 ### Schedule Parsing
 
-Der MQTT-State wird auf Zeitplanparameter `a1..a5`, `b1..b5`, `e1..e5`, `v1..v5` geprüft.
+Der MQTT-State verwendet für Zeitpläne ein anderes Feldschema als der `cd=20` Schreibbefehl.
 
-Diese werden intern als `marstek_schedule_slots` abgebildet:
+MQTT-State Lesefelder:
+
+```text
+dX = aktiv
+eX = Start
+fX = Ende
+hX = Leistung
+```
+
+Beispiel aus MQTT-State:
+
+```text
+d1=1,e1=6:0,f1=22:0,h1=600
+```
+
+Interne Abbildung als `marstek_schedule_slots`:
 
 ```js
 {
-  slot: 5,
+  slot: 1,
   enabled: true,
   start: '6:0',
   end: '22:0',
-  power: 400
+  power: 600
 }
 ```
+
+Wichtig:
+
+- Lesen aus MQTT-State: `d/e/f/h`
+- Schreiben per `cd=20`: `a/b/e/v`
+- Diese beiden Mappings dürfen nicht vermischt werden.
 
 Für die Dropdown-Synchronisation gilt:
 
@@ -214,7 +244,7 @@ nach kurzer Verzögerung.
 - Automatische Modellerkennung über `cd=01`
 - MQTT Subscribe/Publish Infrastruktur
 - HMJ-2 State Parsing
-- Schedule Parsing für Slots 1–5
+- Schedule Parsing für Slots 1–5 über MQTT-State-Felder `d/e/f/h`
 - Device Settings zum Bearbeiten der Slots 1–4
 - Homey Device Integration
 - Battery-Device für Speicherstatus
@@ -325,6 +355,12 @@ cd=20
 ```
 
 und steuert die Leistung über die Zeitplanparameter (`aX`, `bX`, `eX`, `vX`).
+
+Der MQTT-State meldet dieselben Zeitpläne aber über:
+
+```
+dX, eX, fX, hX
+```
 
 Nach Änderungen sollte immer ein:
 
