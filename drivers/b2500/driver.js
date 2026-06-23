@@ -47,6 +47,20 @@ class B2500Driver extends Homey.Driver {
     });
   }
 
+  async onRepair(session, device) {
+    session.setHandler('get_schedules', async () => {
+      return device.getScheduleSlots();
+    });
+
+    session.setHandler('refresh_schedules', async () => {
+      return device.refreshScheduleSlots();
+    });
+
+    session.setHandler('save_schedules', async data => {
+      return device.saveUserScheduleSlots(data && data.slots ? data.slots : []);
+    });
+  }
+
   async triggerPvPowerChanged(device, pvPower) {
     if (!this.pvPowerChangedTrigger) return;
     await this.pvPowerChangedTrigger.trigger(device, { pv_power: pvPower }).catch(this.error);
