@@ -3,7 +3,9 @@ const Homey = require('homey');
 const protocols = require('../../lib/marstek/b2500/protocols');
 const {
   buildHomeyPowerLevelScheduleBody,
+  buildScheduleBodyFromSlots,
   getHomeyPowerLevelFromSlots,
+  updateUserScheduleSlots,
 } = require('../../lib/marstek/b2500/services/ScheduleService');
 
 function delay(ms) {
@@ -45,6 +47,7 @@ class B2500Device extends Homey.Device {
     this.settings = this.getSettings();
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
     this.role = this.getStoreValue('role') || 'battery';
+    this.lastScheduleSlots = [];
 
     if (this.role === 'pv') {
       await this.ensureCapabilities(PV_COMPANION_CAPABILITIES);
@@ -133,6 +136,10 @@ class B2500Device extends Homey.Device {
       return;
     }
 
+    if (Array.isArray(values.marstek_schedule_slots)) {
+      this.lastScheduleSlots = values.marstek_schedule_slots;
+    }
+
     if (this.role === 'pv') {
       await this.updatePvDeviceState(values);
       return;
@@ -163,6 +170,35 @@ class B2500Device extends Homey.Device {
       await this.driver.triggerPvPowerChanged(this, currentPvPower);
       await this.driver.triggerPvPowerThresholds(this, previousPvPower, currentPvPower);
     }
+  }
+
+  getScheduleSlots() {
+    if (this.role === 'pv') {
+      throw new Error('Schedules are only available on the battery device');
+    }
+
+    return Array.isArray(this.lastScheduleSlots) ? this.lastScheduleSlots : [];
+  }
+
+  async refreshScheduleSlots() {
+    await this.refreshState();
+    return this.getScheduleSlots();
+  }
+
+  async saveUserScheduleSlots(userSlots) {
+    if (this.role === 'pv') {
+      throw new Error('Schedules can only be edited on the battery device');
+    }
+
+    const nextSlots = updateUserScheduleSlots(this.getScheduleSlots(), userSlots);
+    const commandBody = buildScheduleBodyFromSlots(nextSlots);
+    const command = this.protocol.setTimerSchedule(commandBody);
+
+    await this.sendCommand(command);
+    this.lastScheduleSlots = nextSlots;
+    await this.refreshStateSoon(1000);
+
+    return this.getScheduleSlots();
   }
 
   async syncOutputPowerPresetFromSchedule(scheduleSlots, fallbackThresholdWatts) {
