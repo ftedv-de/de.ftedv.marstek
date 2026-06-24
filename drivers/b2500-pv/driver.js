@@ -31,6 +31,15 @@ class B2500PvDriver extends Homey.Driver {
     this.log('B2500 PV driver initialized');
   }
 
+  async onPair(session) {
+    session.setHandler('probe_device', async data => {
+      return this.homey.app.probeDevice({
+        ...data,
+        createPvDevice: true,
+      });
+    });
+  }
+
   async triggerPvPowerChanged(device, pvPower) {
     if (!this.pvPowerChangedTrigger) return;
     await this.pvPowerChangedTrigger.trigger(device, { pv_power: pvPower }).catch(this.error);
