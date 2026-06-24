@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Battery Discharged Energy",
+    "de": "Batterie entladene Energie"
+  },
+  "units": {
+    "en": "kWh"
+  },
+  "decimals": 3,
+  "insights": true,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}
