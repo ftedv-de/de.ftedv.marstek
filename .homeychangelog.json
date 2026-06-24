@@ -4,5 +4,8 @@
   },
   "1.0.1": {
     "en": "Initial support for B2500"
+  },
+  "1.0.2": {
+    "en": "added usage info to readme.txt"
   }
 }
