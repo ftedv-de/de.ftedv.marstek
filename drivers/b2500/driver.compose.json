@@ -7,6 +7,8 @@
   "capabilities": [
     "measure_battery",
     "measure_power",
+    "target_power",
+    "target_power_mode",
     "meter_power.charged",
     "meter_power.discharged",
     "marstek_power_level_preset",
@@ -28,6 +30,12 @@
     "marstek_output2_enabled"
   ],
   "capabilitiesOptions": {
+    "target_power": {
+      "min": -800,
+      "max": 0,
+      "step": 10,
+      "decimals": 0
+    },
     "meter_power.charged": {
       "title": {
         "en": "Charged Energy",
