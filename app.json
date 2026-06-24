@@ -322,33 +322,6 @@
         ],
         "id": "pv_power_below"
       }
-    ],
-    "actions": [
-      {
-        "title": {
-          "en": "Set output power",
-          "de": "Ausgangsleistung setzen"
-        },
-        "titleFormatted": {
-          "en": "Set output power to [[power]] W",
-          "de": "Setze Ausgangsleistung auf [[power]] W"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "driver_id=b2500&capabilities=marstek_power_level_preset"
-          },
-          {
-            "name": "power",
-            "type": "number",
-            "min": 0,
-            "max": 2500,
-            "step": 10
-          }
-        ],
-        "id": "set_output_power"
-      }
     ]
   },
   "drivers": [
@@ -366,7 +339,6 @@
         "meter_power.charged",
         "meter_power.discharged",
         "b2500_available_energy",
-        "marstek_power_level_preset",
         "marstek_output1_power",
         "marstek_output2_power",
         "marstek_dod",
@@ -725,82 +697,6 @@
       "uiComponent": "sensor",
       "getable": true,
       "setable": false
-    },
-    "marstek_power_level_preset": {
-      "type": "enum",
-      "title": {
-        "en": "Output Power Preset",
-        "de": "Ausgangsleistung Vorgabe"
-      },
-      "uiComponent": "picker",
-      "getable": true,
-      "setable": true,
-      "insights": false,
-      "values": [
-        {
-          "id": "0",
-          "title": {
-            "en": "0 W (Off)",
-            "de": "0 W (Aus)"
-          }
-        },
-        {
-          "id": "100",
-          "title": {
-            "en": "100 W",
-            "de": "100 W"
-          }
-        },
-        {
-          "id": "200",
-          "title": {
-            "en": "200 W",
-            "de": "200 W"
-          }
-        },
-        {
-          "id": "300",
-          "title": {
-            "en": "300 W",
-            "de": "300 W"
-          }
-        },
-        {
-          "id": "400",
-          "title": {
-            "en": "400 W",
-            "de": "400 W"
-          }
-        },
-        {
-          "id": "500",
-          "title": {
-            "en": "500 W",
-            "de": "500 W"
-          }
-        },
-        {
-          "id": "600",
-          "title": {
-            "en": "600 W",
-            "de": "600 W"
-          }
-        },
-        {
-          "id": "700",
-          "title": {
-            "en": "700 W",
-            "de": "700 W"
-          }
-        },
-        {
-          "id": "800",
-          "title": {
-            "en": "800 W",
-            "de": "800 W"
-          }
-        }
-      ]
     },
     "marstek_pv_energy": {
       "type": "number",
