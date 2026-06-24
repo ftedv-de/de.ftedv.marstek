@@ -7,6 +7,8 @@
   "capabilities": [
     "measure_battery",
     "measure_power",
+    "marstek_battery_charge_energy",
+    "marstek_battery_discharge_energy",
     "marstek_power_level_preset",
     "marstek_pv1_power",
     "marstek_pv2_power",
@@ -26,9 +28,9 @@
     "marstek_output2_enabled"
   ],
   "energy": {
-    "batteries": [
-      "INTERNAL"
-    ]
+    "homeBattery": true,
+    "meterPowerImportedCapability": "marstek_battery_charge_energy",
+    "meterPowerExportedCapability": "marstek_battery_discharge_energy"
   },
   "platforms": [
     "local"
