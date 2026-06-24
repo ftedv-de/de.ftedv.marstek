@@ -24,28 +24,6 @@ const OUTPUT_POWER_PRESET_VALUES = new Set([
   '800',
 ]);
 
-const BATTERY_REQUIRED_CAPABILITIES = [
-  'meter_power.charged',
-  'meter_power.discharged',
-];
-
-const BATTERY_DEPRECATED_CAPABILITIES = [
-  'marstek_battery_charge_energy',
-  'marstek_battery_discharge_energy',
-];
-
-const PV_COMPANION_CAPABILITIES = [
-  'measure_power',
-  'meter_power',
-  'marstek_pv1_power',
-  'marstek_pv2_power',
-];
-
-const PV_COMPANION_DEPRECATED_CAPABILITIES = [
-  'marstek_pv_power',
-  'marstek_pv_energy',
-];
-
 function whToKwh(value) {
   const wh = Number(value);
   if (!Number.isFinite(wh)) return null;
@@ -58,14 +36,6 @@ class B2500Device extends Homey.Device {
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
     this.role = this.getStoreValue('role') || 'battery';
     this.lastScheduleSlots = [];
-
-    if (this.role === 'pv') {
-      await this.ensureCapabilities(PV_COMPANION_CAPABILITIES);
-      await this.removeCapabilities(PV_COMPANION_DEPRECATED_CAPABILITIES);
-    } else {
-      await this.ensureCapabilities(BATTERY_REQUIRED_CAPABILITIES);
-      await this.removeCapabilities(BATTERY_DEPRECATED_CAPABILITIES);
-    }
 
     this.stateTopic = this.settings.mqtt_state_topic;
     this.commandTopic = this.settings.mqtt_command_topic;
@@ -89,27 +59,15 @@ class B2500Device extends Homey.Device {
       });
     }
 
+    if (this.role !== 'pv' && this.hasCapability('target_power')) {
+      this.registerCapabilityListener('target_power', async value => this.setTargetPower(value));
+    }
+
+    if (this.role !== 'pv' && this.hasCapability('target_power_mode')) {
+      this.registerCapabilityListener('target_power_mode', async value => this.setTargetPowerMode(value));
+    }
+
     this.refreshStateSoon(1000).catch(this.error);
-  }
-
-  async ensureCapabilities(capabilities) {
-    for (const capability of capabilities) {
-      if (this.hasCapability(capability)) continue;
-
-      await this.addCapability(capability).catch(err => {
-        this.error(`Failed to add capability ${capability}`, err);
-      });
-    }
-  }
-
-  async removeCapabilities(capabilities) {
-    for (const capability of capabilities) {
-      if (!this.hasCapability(capability)) continue;
-
-      await this.removeCapability(capability).catch(err => {
-        this.error(`Failed to remove capability ${capability}`, err);
-      });
-    }
   }
 
   async onSettings({ oldSettings, newSettings, changedKeys }) {
@@ -174,6 +132,7 @@ class B2500Device extends Homey.Device {
     }
 
     await this.syncOutputPowerPresetFromSchedule(values.marstek_schedule_slots, values.marstek_threshold_w);
+    await this.syncTargetPowerFromSchedule(values.marstek_schedule_slots);
 
     const currentPvPower = Number(values.marstek_pv_power);
 
@@ -242,6 +201,61 @@ class B2500Device extends Homey.Device {
     if (this.getCapabilityValue('marstek_power_level_preset') === preset) return;
 
     await this.setCapabilityValue('marstek_power_level_preset', preset).catch(this.error);
+  }
+
+  async syncTargetPowerFromSchedule(scheduleSlots) {
+    if (!this.hasCapability('target_power')) return;
+
+    const scheduledPowerLevel = getHomeyPowerLevelFromSlots(scheduleSlots);
+
+    if (scheduledPowerLevel === null) {
+      if (this.hasCapability('target_power_mode') && this.getCapabilityValue('target_power_mode') !== 'device') {
+        await this.setCapabilityValue('target_power_mode', 'device').catch(this.error);
+      }
+      return;
+    }
+
+    const targetPower = scheduledPowerLevel === 0 ? 0 : -Math.abs(Math.round(scheduledPowerLevel));
+
+    if (this.hasCapability('target_power_mode') && this.getCapabilityValue('target_power_mode') !== 'homey') {
+      await this.setCapabilityValue('target_power_mode', 'homey').catch(this.error);
+    }
+
+    if (this.getCapabilityValue('target_power') !== targetPower) {
+      await this.setCapabilityValue('target_power', targetPower).catch(this.error);
+    }
+  }
+
+  async setTargetPower(value) {
+    if (this.role === 'pv') {
+      throw new Error('Target power cannot be set on the PV companion device');
+    }
+
+    const targetPower = Number(value);
+    if (!Number.isFinite(targetPower)) {
+      throw new Error('Invalid target power');
+    }
+
+    if (targetPower > 0) {
+      throw new Error('Charging via positive target_power is not supported yet');
+    }
+
+    if (this.hasCapability('target_power_mode')) {
+      await this.setCapabilityValue('target_power_mode', 'homey').catch(this.error);
+    }
+
+    await this.setOutputPowerSchedule(Math.abs(Math.round(targetPower)));
+    await this.setCapabilityValue('target_power', targetPower).catch(this.error);
+  }
+
+  async setTargetPowerMode(value) {
+    if (this.role === 'pv') {
+      throw new Error('Target power mode cannot be set on the PV companion device');
+    }
+
+    if (value !== 'homey' && this.hasCapability('target_power')) {
+      await this.setCapabilityValue('target_power', 0).catch(this.error);
+    }
   }
 
   async updatePvDeviceState(values) {
