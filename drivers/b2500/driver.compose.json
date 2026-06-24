@@ -12,8 +12,6 @@
     "meter_power.charged",
     "meter_power.discharged",
     "b2500_available_energy",
-    "b2500_charge_power",
-    "b2500_discharge_power",
     "marstek_power_level_preset",
     "marstek_output1_power",
     "marstek_output2_power",
@@ -32,8 +30,8 @@
   "capabilitiesOptions": {
     "measure_power": {
       "title": {
-        "en": "Net Battery Power",
-        "de": "Netto-Batterieleistung"
+        "en": "Battery Power",
+        "de": "Batterieleistung"
       }
     },
     "target_power": {
