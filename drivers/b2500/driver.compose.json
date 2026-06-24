@@ -7,8 +7,8 @@
   "capabilities": [
     "measure_battery",
     "measure_power",
-    "marstek_battery_charge_energy",
-    "marstek_battery_discharge_energy",
+    "meter_power.charged",
+    "meter_power.discharged",
     "marstek_power_level_preset",
     "marstek_pv1_power",
     "marstek_pv2_power",
@@ -27,10 +27,26 @@
     "marstek_output1_enabled",
     "marstek_output2_enabled"
   ],
+  "capabilitiesOptions": {
+    "meter_power.charged": {
+      "title": {
+        "en": "Charged Energy",
+        "de": "Geladene Energie"
+      },
+      "decimals": 3
+    },
+    "meter_power.discharged": {
+      "title": {
+        "en": "Discharged Energy",
+        "de": "Entladene Energie"
+      },
+      "decimals": 3
+    }
+  },
   "energy": {
     "homeBattery": true,
-    "meterPowerImportedCapability": "marstek_battery_charge_energy",
-    "meterPowerExportedCapability": "marstek_battery_discharge_energy"
+    "meterPowerImportedCapability": "meter_power.charged",
+    "meterPowerExportedCapability": "meter_power.discharged"
   },
   "platforms": [
     "local"
