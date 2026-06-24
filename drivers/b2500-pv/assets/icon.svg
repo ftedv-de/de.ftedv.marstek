@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Solar panel">
+  <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="18" cy="14" r="5" />
+    <path d="M18 3v4" />
+    <path d="M18 21v4" />
+    <path d="M7 14h4" />
+    <path d="M25 14h4" />
+    <path d="M10 6l3 3" />
+    <path d="M26 6l-3 3" />
+    <path d="M10 22l3-3" />
+    <path d="M26 22l-3-3" />
+
+    <path d="M16 28h36l-7 23H8z" />
+    <path d="M18 28l-6 23" />
+    <path d="M28 28l-3 23" />
+    <path d="M39 28l2 23" />
+    <path d="M14 37h35" />
+    <path d="M11 45h36" />
+    <path d="M45 51h10" />
+    <path d="M52 28v23" />
+  </g>
+</svg>
