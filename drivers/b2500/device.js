@@ -319,6 +319,32 @@ class B2500Device extends Homey.Device {
     return this.isCapabilityBelow(capability, threshold);
   }
 
+  getOutputPower() {
+    const output1Power = Number(this.getCapabilityValue('marstek_output1_power'));
+    const output2Power = Number(this.getCapabilityValue('marstek_output2_power'));
+
+    return (Number.isFinite(output1Power) ? output1Power : 0)
+      + (Number.isFinite(output2Power) ? output2Power : 0);
+  }
+
+  isOutputPowerAbove(threshold) {
+    const value = this.getOutputPower();
+    const compareTo = Number(threshold);
+
+    if (!Number.isFinite(value) || !Number.isFinite(compareTo)) return false;
+
+    return value > compareTo;
+  }
+
+  isOutputPowerBelow(threshold) {
+    const value = this.getOutputPower();
+    const compareTo = Number(threshold);
+
+    if (!Number.isFinite(value) || !Number.isFinite(compareTo)) return false;
+
+    return value < compareTo;
+  }
+
   isOutputEnabled(output) {
     const outputId = String(output || '').trim();
     const capability = outputId === '2'
