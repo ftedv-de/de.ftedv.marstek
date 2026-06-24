@@ -264,8 +264,8 @@ class B2500Device extends Homey.Device {
     const pvEnergyKwh = whToKwh(values.marstek_pv_energy_wh);
 
     await this.setNumberCapability('measure_power', values.marstek_pv_power);
-    await this.setNumberCapability('marstek_pv1_power', values.marstek_pv1_power);
-    await this.setNumberCapability('marstek_pv2_power', values.marstek_pv2_power);
+    await this.setNumberCapability('measure_power.pv1', values['measure_power.pv1']);
+    await this.setNumberCapability('measure_power.pv2', values['measure_power.pv2']);
     await this.setNumberCapability('meter_power', pvEnergyKwh);
 
     if (
