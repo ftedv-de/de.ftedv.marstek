@@ -52,6 +52,11 @@
     "large": "/assets/images/large.png",
     "xlarge": "/assets/images/xlarge.png"
   },
+  "pair": [
+    {
+      "id": "start"
+    }
+  ],
   "settings": [
     {
       "id": "protocol_version",
