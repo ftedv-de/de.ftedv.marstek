@@ -12,7 +12,6 @@
     "meter_power.charged",
     "meter_power.discharged",
     "b2500_available_energy",
-    "marstek_power_level_preset",
     "marstek_output1_power",
     "marstek_output2_power",
     "marstek_dod",
