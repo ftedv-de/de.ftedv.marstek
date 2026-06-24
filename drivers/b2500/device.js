@@ -25,6 +25,11 @@ const OUTPUT_POWER_PRESET_VALUES = new Set([
 ]);
 
 const BATTERY_REQUIRED_CAPABILITIES = [
+  'meter_power.charged',
+  'meter_power.discharged',
+];
+
+const BATTERY_DEPRECATED_CAPABILITIES = [
   'marstek_battery_charge_energy',
   'marstek_battery_discharge_energy',
 ];
@@ -59,6 +64,7 @@ class B2500Device extends Homey.Device {
       await this.removeCapabilities(PV_COMPANION_DEPRECATED_CAPABILITIES);
     } else {
       await this.ensureCapabilities(BATTERY_REQUIRED_CAPABILITIES);
+      await this.removeCapabilities(BATTERY_DEPRECATED_CAPABILITIES);
     }
 
     this.stateTopic = this.settings.mqtt_state_topic;
