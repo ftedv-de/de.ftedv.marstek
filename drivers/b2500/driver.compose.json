@@ -27,8 +27,8 @@
   "capabilitiesOptions": {
     "measure_power": {
       "title": {
-        "en": "Battery Power",
-        "de": "Batterieleistung"
+        "en": "Output Power",
+        "de": "Ausgangsleistung"
       }
     },
     "target_power": {

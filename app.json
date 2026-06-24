@@ -2,7 +2,7 @@
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.ftedv.marstek",
   "version": "1.0.0",
-  "compatibility": ">=12.4.0",
+  "compatibility": ">=12.13.0",
   "sdk": 3,
   "runtime": "nodejs",
   "platforms": [
@@ -356,28 +356,63 @@
       "capabilities": [
         "measure_battery",
         "measure_power",
+        "target_power",
+        "target_power_mode",
+        "meter_power.charged",
+        "meter_power.discharged",
+        "b2500_available_energy",
         "marstek_power_level_preset",
-        "marstek_pv1_power",
-        "marstek_pv2_power",
-        "marstek_pv_power",
         "marstek_output1_power",
         "marstek_output2_power",
-        "marstek_output_power",
         "marstek_dod",
         "marstek_threshold_w",
         "marstek_firmware_version",
         "marstek_wifi_signal",
         "marstek_cell_temp_min",
         "marstek_cell_temp_max",
-        "marstek_charge_mode",
-        "marstek_discharge_mode",
         "marstek_output1_enabled",
         "marstek_output2_enabled"
       ],
+      "capabilitiesOptions": {
+        "measure_power": {
+          "title": {
+            "en": "Output Power",
+            "de": "Ausgangsleistung"
+          }
+        },
+        "target_power": {
+          "min": -800,
+          "max": 0,
+          "step": 10,
+          "decimals": 0
+        },
+        "meter_power.charged": {
+          "title": {
+            "en": "Charged Energy",
+            "de": "Geladene Energie"
+          },
+          "decimals": 3,
+          "energy": {
+            "cumulative": true,
+            "meterType": "daily"
+          }
+        },
+        "meter_power.discharged": {
+          "title": {
+            "en": "Discharged Energy",
+            "de": "Entladene Energie"
+          },
+          "decimals": 3,
+          "energy": {
+            "cumulative": true,
+            "meterType": "daily"
+          }
+        }
+      },
       "energy": {
-        "batteries": [
-          "INTERNAL"
-        ]
+        "homeBattery": true,
+        "meterPowerImportedCapability": "meter_power.charged",
+        "meterPowerExportedCapability": "meter_power.discharged"
       },
       "platforms": [
         "local"
@@ -393,6 +428,11 @@
       "pair": [
         {
           "id": "start"
+        }
+      ],
+      "repair": [
+        {
+          "id": "schedules"
         }
       ],
       "settings": [
@@ -424,9 +464,113 @@
           "value": "hame_energy/App/18cedfd22770/ctrl"
         }
       ]
+    },
+    {
+      "id": "b2500-pv",
+      "name": {
+        "en": "Marstek B2500 PV"
+      },
+      "class": "solarpanel",
+      "capabilities": [
+        "measure_power",
+        "measure_power.pv1",
+        "measure_power.pv2",
+        "meter_power"
+      ],
+      "capabilitiesOptions": {
+        "measure_power": {
+          "title": {
+            "en": "PV Power",
+            "de": "PV-Leistung"
+          }
+        },
+        "measure_power.pv1": {
+          "title": {
+            "en": "PV 1 Power",
+            "de": "PV 1 Leistung"
+          }
+        },
+        "measure_power.pv2": {
+          "title": {
+            "en": "PV 2 Power",
+            "de": "PV 2 Leistung"
+          }
+        },
+        "meter_power": {
+          "title": {
+            "en": "PV Energy",
+            "de": "PV-Energie"
+          },
+          "decimals": 3,
+          "energy": {
+            "cumulative": true,
+            "meterType": "daily"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/assets/images/small.png",
+        "large": "/assets/images/large.png",
+        "xlarge": "/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        }
+      ],
+      "settings": [
+        {
+          "id": "protocol_version",
+          "type": "text",
+          "label": {
+            "en": "Protocol version",
+            "de": "Protokollversion"
+          },
+          "value": "v2"
+        },
+        {
+          "id": "mqtt_state_topic",
+          "type": "text",
+          "label": {
+            "en": "MQTT state topic",
+            "de": "MQTT Status-Topic"
+          },
+          "value": ""
+        },
+        {
+          "id": "mqtt_command_topic",
+          "type": "text",
+          "label": {
+            "en": "MQTT command topic",
+            "de": "MQTT Command-Topic"
+          },
+          "value": ""
+        }
+      ]
     }
   ],
   "capabilities": {
+    "b2500_available_energy": {
+      "type": "number",
+      "title": {
+        "en": "Available Energy",
+        "de": "Verfügbare Energie"
+      },
+      "units": {
+        "en": "Wh"
+      },
+      "decimals": 0,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
+    },
     "marstek_cell_temp_max": {
       "type": "number",
       "title": {
@@ -652,6 +796,21 @@
           }
         }
       ]
+    },
+    "marstek_pv_energy": {
+      "type": "number",
+      "title": {
+        "en": "PV Energy",
+        "de": "PV Energie"
+      },
+      "units": {
+        "en": "kWh"
+      },
+      "decimals": 3,
+      "insights": true,
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false
     },
     "marstek_pv_power": {
       "type": "number",
