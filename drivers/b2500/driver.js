@@ -33,8 +33,8 @@ class B2500Driver extends Homey.Driver {
     this.homey.flow.getConditionCard('pv_power_above').registerRunListener(async args => args.device.isPvPowerAbove(args.value));
     this.homey.flow.getConditionCard('pv_power_below').registerRunListener(async args => args.device.isPvPowerBelow(args.value));
 
-    this.homey.flow.getConditionCard('output_power_above').registerRunListener(async args => args.device.isCapabilityAbove('marstek_output_power', args.value));
-    this.homey.flow.getConditionCard('output_power_below').registerRunListener(async args => args.device.isCapabilityBelow('marstek_output_power', args.value));
+    this.homey.flow.getConditionCard('output_power_above').registerRunListener(async args => args.device.isOutputPowerAbove(args.value));
+    this.homey.flow.getConditionCard('output_power_below').registerRunListener(async args => args.device.isOutputPowerBelow(args.value));
 
     this.homey.flow.getConditionCard('output_enabled').registerRunListener(async args => args.device.isOutputEnabled(args.output));
 
