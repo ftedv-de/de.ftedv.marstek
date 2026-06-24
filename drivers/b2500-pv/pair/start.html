@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: sans-serif; padding: 1rem; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input, select { width: 100%; box-sizing: border-box; padding: .45rem; }
+    button { margin-top: 1rem; padding: .55rem 1rem; }
+    .hint { color: #666; margin-top: .5rem; font-size: .9rem; }
+    .status { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Marstek B2500 PV hinzufügen</h1>
+
+  <p class="hint">
+    Wähle die Hardware-/Protokollversion und gib dieselbe Device-ID wie beim Batteriespeicher ein. Die App prüft das Gerät per MQTT und fügt nur das separate PV-Erzeuger-Gerät hinzu.
+  </p>
+
+  <label for="hardware_version">Hardware-Version</label>
+  <select id="hardware_version">
+    <option value="v2">v2</option>
+    <option value="v1">v1</option>
+  </select>
+
+  <label for="device_id">Device-ID</label>
+  <input id="device_id" type="text" maxlength="12" placeholder="18cedfd22770">
+
+  <button id="probe">PV-Gerät prüfen und hinzufügen</button>
+
+  <div id="status" class="status"></div>
+
+  <script type="application/javascript">
+    $(function(){
+      const hardwareVersionEl = document.getElementById('hardware_version');
+      const deviceIdEl = document.getElementById('device_id');
+      const button = document.getElementById('probe');
+      const status = document.getElementById('status');
+
+      function setStatus(text) {
+        status.textContent = text || '';
+      }
+
+      button.addEventListener('click', () => {
+        const hardwareVersion = hardwareVersionEl.value;
+        const deviceId = deviceIdEl.value.trim().toLowerCase();
+
+        if (!/^[a-f0-9]{12}$/.test(deviceId)) {
+          Homey.alert('Bitte eine 12-stellige hexadezimale Device-ID eingeben.');
+          return;
+        }
+
+        button.disabled = true;
+        setStatus('Teste passende Geräteklassen und warte auf Antwort...');
+
+        Homey.emit('probe_device', { hardwareVersion, deviceId, createPvDevice: true })
+          .then(deviceSet => {
+            if (!deviceSet.pv) {
+              throw new Error('Kein PV-Gerät erzeugt.');
+            }
+
+            setStatus('Gerät gefunden. Füge PV-Erzeuger hinzu...');
+            return Homey.createDevice(deviceSet.pv);
+          })
+          .then(() => {
+            setStatus('PV-Erzeuger wurde hinzugefügt.');
+            Homey.done();
+          })
+          .catch(error => {
+            Homey.alert(error && error.message ? error.message : String(error));
+            setStatus('Kein Gerät gefunden oder Fehler beim Hinzufügen.');
+          })
+          .finally(() => {
+            button.disabled = false;
+          });
+      });
+    });
+  </script>
+</body>
+</html>
