@@ -309,6 +309,16 @@ class B2500Device extends Homey.Device {
     return value < compareTo;
   }
 
+  isPvPowerAbove(threshold) {
+    const capability = this.hasCapability('marstek_pv_power') ? 'marstek_pv_power' : 'measure_power';
+    return this.isCapabilityAbove(capability, threshold);
+  }
+
+  isPvPowerBelow(threshold) {
+    const capability = this.hasCapability('marstek_pv_power') ? 'marstek_pv_power' : 'measure_power';
+    return this.isCapabilityBelow(capability, threshold);
+  }
+
   isOutputEnabled(output) {
     const outputId = String(output || '').trim();
     const capability = outputId === '2'
