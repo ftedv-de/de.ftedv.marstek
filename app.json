@@ -22,6 +22,11 @@
     "name": "Florian Trück",
     "email": "ftrueck@gmail.com"
   },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png"
+  },
+  "brandColor": "#33ff33",
   "flow": {
     "triggers": [
       {
@@ -421,9 +426,9 @@
         "lan"
       ],
       "images": {
-        "small": "/assets/images/small.png",
-        "large": "/assets/images/large.png",
-        "xlarge": "/assets/images/xlarge.png"
+        "small": "/drivers/b2500/assets/images/small.png",
+        "large": "/drivers/b2500/assets/images/large.png",
+        "xlarge": "/drivers/b2500/assets/images/xlarge.png"
       },
       "pair": [
         {
@@ -515,9 +520,9 @@
         "lan"
       ],
       "images": {
-        "small": "/assets/images/small.png",
-        "large": "/assets/images/large.png",
-        "xlarge": "/assets/images/xlarge.png"
+        "small": "/drivers/b2500-pv/assets/images/small.png",
+        "large": "/drivers/b2500-pv/assets/images/large.png",
+        "xlarge": "/drivers/b2500-pv/assets/images/xlarge.png"
       },
       "pair": [
         {

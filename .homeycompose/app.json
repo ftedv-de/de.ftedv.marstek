@@ -20,5 +20,10 @@
   "author": {
     "name": "Florian Trück",
     "email": "ftrueck@gmail.com"
-  }
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png"
+  },
+  "brandColor": "#33ff33"
 }
