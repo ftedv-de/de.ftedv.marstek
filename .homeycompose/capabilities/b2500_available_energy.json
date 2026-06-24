@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Available Energy",
+    "de": "Verfügbare Energie"
+  },
+  "units": {
+    "en": "Wh"
+  },
+  "decimals": 0,
+  "insights": true,
+  "uiComponent": "sensor",
+  "getable": true,
+  "setable": false
+}
