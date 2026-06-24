@@ -25,8 +25,6 @@ class B2500Driver extends Homey.Driver {
       return previous >= threshold && current < threshold;
     });
 
-    this.homey.flow.getActionCard('set_output_power').registerRunListener(async args => args.device.setOutputPower(args.power));
-
     this.homey.flow.getConditionCard('battery_above').registerRunListener(async args => args.device.isCapabilityAbove('measure_battery', args.value));
     this.homey.flow.getConditionCard('battery_below').registerRunListener(async args => args.device.isCapabilityBelow('measure_battery', args.value));
 
