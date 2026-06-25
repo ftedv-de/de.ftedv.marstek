@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.ftedv.marstek",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "compatibility": ">=12.13.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -27,6 +27,26 @@
     "large": "/assets/images/large.png"
   },
   "brandColor": "#33ff33",
+  "tags": {
+    "en": [
+      "energy",
+      "marstek",
+      "b2500",
+      "solar"
+    ]
+  },
+  "support": "https://community.homey.app/t/app-pro-marstek-solar-battery/156522",
+  "homeyCommunityTopicId": 156522,
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "ftrueck"
+      },
+      "patreon": {
+        "username": "ftrueck"
+      }
+    }
+  },
   "flow": {
     "triggers": [
       {

@@ -18,6 +18,7 @@ Usage:
 If you want to set the output power of the device you should set the Mode to Homey.
 There is a flow card that you can use to set the Output Watts for the B2500.
 You can change the schedules if you want to use time mode. You have 4 slots available for free customization.
+Schedule management is done via the "repair" feature of the battery device.
 Slot 5 is reserved for Output power management and can not be configured by you.
 If you want to use only schedules it is adviced to set the mode to Automatic.
 Practical tip: Using the solar device and the battery device in energy dashboard at the same time is not useful. Choose either one to not have double energy stats.
