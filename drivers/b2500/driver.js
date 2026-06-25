@@ -3,35 +3,10 @@ const Homey = require('homey');
 
 class B2500Driver extends Homey.Driver {
   async onInit() {
-    this.pvPowerChangedTrigger = this.homey.flow.getDeviceTriggerCard('pv_power_changed');
-    this.pvPowerAboveThresholdTrigger = this.homey.flow.getDeviceTriggerCard('pv_power_above_threshold');
-    this.pvPowerBelowThresholdTrigger = this.homey.flow.getDeviceTriggerCard('pv_power_below_threshold');
-
-    this.pvPowerAboveThresholdTrigger.registerRunListener(async (args, state) => {
-      const threshold = Number(args.threshold);
-      const previous = Number(state.previousPvPower);
-      const current = Number(state.currentPvPower);
-
-      if (!Number.isFinite(threshold) || !Number.isFinite(previous) || !Number.isFinite(current)) return false;
-      return previous <= threshold && current > threshold;
-    });
-
-    this.pvPowerBelowThresholdTrigger.registerRunListener(async (args, state) => {
-      const threshold = Number(args.threshold);
-      const previous = Number(state.previousPvPower);
-      const current = Number(state.currentPvPower);
-
-      if (!Number.isFinite(threshold) || !Number.isFinite(previous) || !Number.isFinite(current)) return false;
-      return previous >= threshold && current < threshold;
-    });
-
     this.homey.flow.getActionCard('update_status').registerRunListener(async args => args.device.updateStatus());
 
     this.homey.flow.getConditionCard('battery_above').registerRunListener(async args => args.device.isCapabilityAbove('measure_battery', args.value));
     this.homey.flow.getConditionCard('battery_below').registerRunListener(async args => args.device.isCapabilityBelow('measure_battery', args.value));
-
-    this.homey.flow.getConditionCard('pv_power_above').registerRunListener(async args => args.device.isPvPowerAbove(args.value));
-    this.homey.flow.getConditionCard('pv_power_below').registerRunListener(async args => args.device.isPvPowerBelow(args.value));
 
     this.homey.flow.getConditionCard('output_power_above').registerRunListener(async args => args.device.isOutputPowerAbove(args.value));
     this.homey.flow.getConditionCard('output_power_below').registerRunListener(async args => args.device.isOutputPowerBelow(args.value));
@@ -59,24 +34,6 @@ class B2500Driver extends Homey.Driver {
     session.setHandler('save_schedules', async data => {
       return device.saveUserScheduleSlots(data && data.slots ? data.slots : []);
     });
-  }
-
-  async triggerPvPowerChanged(device, pvPower) {
-    if (!this.pvPowerChangedTrigger) return;
-    await this.pvPowerChangedTrigger.trigger(device, { pv_power: pvPower }).catch(this.error);
-  }
-
-  async triggerPvPowerThresholds(device, previousPvPower, currentPvPower) {
-    const tokens = { pv_power: currentPvPower };
-    const state = { previousPvPower, currentPvPower };
-
-    if (this.pvPowerAboveThresholdTrigger) {
-      await this.pvPowerAboveThresholdTrigger.trigger(device, tokens, state).catch(this.error);
-    }
-
-    if (this.pvPowerBelowThresholdTrigger) {
-      await this.pvPowerBelowThresholdTrigger.trigger(device, tokens, state).catch(this.error);
-    }
   }
 }
 
