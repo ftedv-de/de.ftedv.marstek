@@ -10,5 +10,8 @@
   },
   "1.0.3": {
     "en": "Added support info and community link"
+  },
+  "1.0.4": {
+    "en": "Fixed bug in schedule handling"
   }
 }
