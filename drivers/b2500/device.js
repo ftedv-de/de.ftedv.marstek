@@ -226,6 +226,10 @@ class B2500Device extends Homey.Device {
     await this.refreshState();
   }
 
+  async updateStatus() {
+    return this.refreshState();
+  }
+
   async updatePvDeviceState(values) {
     const previousPvPower = Number(this.getCapabilityValue('measure_power'));
     const currentPvPower = Number(values.marstek_pv_power);
