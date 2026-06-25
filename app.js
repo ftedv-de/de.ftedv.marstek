@@ -36,10 +36,7 @@ class MarstekApp extends Homey.App {
 
     this.client.on('connect', () => {
       this.log('MQTT connected');
-
-      for (const topic of this.topicDevices.keys()) {
-        this.client.subscribe(topic);
-      }
+      this.resubscribeDeviceTopics();
     });
 
     this.client.on('message', (topic, payload) => {
@@ -47,13 +44,21 @@ class MarstekApp extends Homey.App {
       if (!devices) return;
 
       for (const device of devices) {
-        device.onMqttMessage(topic, payload.toString());
+        Promise.resolve(device.onMqttMessage(topic, payload.toString())).catch(this.error);
       }
     });
 
     this.client.on('error', err => {
       this.error('MQTT error', err);
     });
+  }
+
+  resubscribeDeviceTopics() {
+    if (!this.client?.connected) return;
+
+    for (const topic of this.topicDevices.keys()) {
+      this.client.subscribe(topic);
+    }
   }
 
   buildMarstekDeviceSet({ model, deviceId, protocolVersion = 'v2', createPvDevice = true }) {
@@ -105,9 +110,17 @@ class MarstekApp extends Homey.App {
       const cleanup = () => {
         clearTimeout(timer);
         this.client.off('message', onMessage);
+
         for (const topic of stateTopicToDeviceSet.keys()) {
-          this.client.unsubscribe(topic);
+          // Do not unsubscribe topics that are already used by paired devices.
+          // PV pairing probes the same state topic as the battery device; blindly
+          // unsubscribing here would silently stop state updates for existing devices.
+          if (!this.topicDevices.has(topic)) {
+            this.client.unsubscribe(topic);
+          }
         }
+
+        this.resubscribeDeviceTopics();
       };
 
       const onMessage = (topic, payload) => {
@@ -161,10 +174,13 @@ class MarstekApp extends Homey.App {
   subscribeDevice(device, topic) {
     if (!this.topicDevices.has(topic)) {
       this.topicDevices.set(topic, new Set());
-      this.client?.subscribe(topic);
     }
 
     this.topicDevices.get(topic).add(device);
+
+    // MQTT subscribe is idempotent. Calling it every time protects us from
+    // temporary probe subscriptions that may have unsubscribed the same topic.
+    this.client?.subscribe(topic);
   }
 
   unsubscribeDevice(device, topic) {
@@ -184,6 +200,7 @@ class MarstekApp extends Homey.App {
       throw new Error('MQTT client is not connected');
     }
 
+    this.client.subscribe(topic.replace('/App/', '/device/'));
     this.client.publish(topic, payload);
   }
 }
