@@ -12,17 +12,10 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function whToKwh(value) {
-  const wh = Number(value);
-  if (!Number.isFinite(wh)) return null;
-  return wh / 1000;
-}
-
 class B2500Device extends Homey.Device {
   async onInit() {
     this.settings = this.getSettings();
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
-    this.role = this.getStoreValue('role') || 'battery';
     this.lastScheduleSlots = [];
 
     this.stateTopic = this.settings.mqtt_state_topic;
@@ -34,11 +27,11 @@ class B2500Device extends Homey.Device {
       this.homey.app.subscribeDevice(this, this.stateTopic);
     }
 
-    if (this.role !== 'pv' && this.hasCapability('target_power')) {
+    if (this.hasCapability('target_power')) {
       this.registerCapabilityListener('target_power', async value => this.setTargetPower(value));
     }
 
-    if (this.role !== 'pv' && this.hasCapability('target_power_mode')) {
+    if (this.hasCapability('target_power_mode')) {
       this.registerCapabilityListener('target_power_mode', async value => this.setTargetPowerMode(value));
     }
 
@@ -88,17 +81,10 @@ class B2500Device extends Homey.Device {
       this.lastScheduleSlots = values.marstek_schedule_slots;
     }
 
-    if (this.role === 'pv') {
-      await this.updatePvDeviceState(values);
-      return;
-    }
-
     await this.updateBatteryDeviceState(values);
   }
 
   async updateBatteryDeviceState(values) {
-    const previousPvPower = Number(this.getCapabilityValue('marstek_pv_power'));
-
     for (const [capability, value] of Object.entries(values)) {
       if (value === null || value === undefined) continue;
       if (!this.hasCapability(capability)) continue;
@@ -107,24 +93,9 @@ class B2500Device extends Homey.Device {
     }
 
     await this.syncTargetPowerFromSchedule(values.marstek_schedule_slots);
-
-    const currentPvPower = Number(values.marstek_pv_power);
-
-    if (
-      Number.isFinite(currentPvPower)
-      && Number.isFinite(previousPvPower)
-      && currentPvPower !== previousPvPower
-    ) {
-      await this.driver.triggerPvPowerChanged(this, currentPvPower);
-      await this.driver.triggerPvPowerThresholds(this, previousPvPower, currentPvPower);
-    }
   }
 
   getScheduleSlots() {
-    if (this.role === 'pv') {
-      throw new Error('Schedules are only available on the battery device');
-    }
-
     return Array.isArray(this.lastScheduleSlots) ? this.lastScheduleSlots : [];
   }
 
@@ -135,10 +106,6 @@ class B2500Device extends Homey.Device {
   }
 
   async saveUserScheduleSlots(userSlots) {
-    if (this.role === 'pv') {
-      throw new Error('Schedules can only be edited on the battery device');
-    }
-
     const nextSlots = updateUserScheduleSlots(this.getScheduleSlots(), userSlots);
     const commandBody = buildScheduleBodyFromSlots(nextSlots);
     const command = this.protocol.setTimerSchedule(commandBody);
@@ -157,9 +124,13 @@ class B2500Device extends Homey.Device {
 
     const scheduledTargetPower = getHomeyTargetPowerFromSlots(scheduleSlots);
 
-    if (scheduledTargetPower === null) {
+    if (scheduledTargetPower === null || scheduledTargetPower === 0) {
       if (this.hasCapability('target_power_mode') && this.getCapabilityValue('target_power_mode') !== 'device') {
         await this.setCapabilityValue('target_power_mode', 'device').catch(this.error);
+      }
+
+      if (scheduledTargetPower === 0 && this.getCapabilityValue('target_power') !== 0) {
+        await this.setCapabilityValue('target_power', 0).catch(this.error);
       }
       return;
     }
@@ -174,10 +145,6 @@ class B2500Device extends Homey.Device {
   }
 
   async setTargetPower(value) {
-    if (this.role === 'pv') {
-      throw new Error('Target power cannot be set on the PV companion device');
-    }
-
     const targetPower = Number(value);
     if (!Number.isFinite(targetPower)) {
       throw new Error('Invalid target power');
@@ -187,19 +154,18 @@ class B2500Device extends Homey.Device {
       throw new Error('Charging via positive target_power is not supported by this device');
     }
 
-    if (this.hasCapability('target_power_mode')) {
-      await this.setCapabilityValue('target_power_mode', targetPower === 0 ? 'device' : 'homey').catch(this.error);
+    await this.setTargetPowerSchedule(targetPower);
+
+    if (this.hasCapability('target_power')) {
+      await this.setCapabilityValue('target_power', targetPower).catch(this.error);
     }
 
-    await this.setTargetPowerSchedule(targetPower);
-    await this.setCapabilityValue('target_power', targetPower).catch(this.error);
+    if (this.hasCapability('target_power_mode')) {
+      await this.setCapabilityValue('target_power_mode', targetPower < 0 ? 'homey' : 'device').catch(this.error);
+    }
   }
 
   async setTargetPowerMode(value) {
-    if (this.role === 'pv') {
-      throw new Error('Target power mode cannot be set on the PV companion device');
-    }
-
     if (value === 'homey') {
       const currentTargetPower = Number(this.getCapabilityValue('target_power'));
       const targetPower = Number.isFinite(currentTargetPower) && currentTargetPower < 0
@@ -207,6 +173,10 @@ class B2500Device extends Homey.Device {
         : 0;
 
       await this.setTargetPowerSchedule(targetPower);
+
+      if (this.hasCapability('target_power_mode')) {
+        await this.setCapabilityValue('target_power_mode', targetPower < 0 ? 'homey' : 'device').catch(this.error);
+      }
       return;
     }
 
@@ -214,6 +184,10 @@ class B2500Device extends Homey.Device {
 
     if (this.hasCapability('target_power')) {
       await this.setCapabilityValue('target_power', 0).catch(this.error);
+    }
+
+    if (this.hasCapability('target_power_mode')) {
+      await this.setCapabilityValue('target_power_mode', 'device').catch(this.error);
     }
   }
 
@@ -228,26 +202,6 @@ class B2500Device extends Homey.Device {
 
   async updateStatus() {
     return this.refreshState();
-  }
-
-  async updatePvDeviceState(values) {
-    const previousPvPower = Number(this.getCapabilityValue('measure_power'));
-    const currentPvPower = Number(values.marstek_pv_power);
-    const pvEnergyKwh = whToKwh(values.marstek_pv_energy_wh);
-
-    await this.setNumberCapability('measure_power', values.marstek_pv_power);
-    await this.setNumberCapability('measure_power.pv1', values['measure_power.pv1']);
-    await this.setNumberCapability('measure_power.pv2', values['measure_power.pv2']);
-    await this.setNumberCapability('meter_power', pvEnergyKwh);
-
-    if (
-      Number.isFinite(currentPvPower)
-      && Number.isFinite(previousPvPower)
-      && currentPvPower !== previousPvPower
-    ) {
-      await this.driver.triggerPvPowerChanged(this, currentPvPower);
-      await this.driver.triggerPvPowerThresholds(this, previousPvPower, currentPvPower);
-    }
   }
 
   async setNumberCapability(capability, value) {
@@ -279,16 +233,6 @@ class B2500Device extends Homey.Device {
     if (!Number.isFinite(value) || !Number.isFinite(compareTo)) return false;
 
     return value < compareTo;
-  }
-
-  isPvPowerAbove(threshold) {
-    const capability = this.hasCapability('marstek_pv_power') ? 'marstek_pv_power' : 'measure_power';
-    return this.isCapabilityAbove(capability, threshold);
-  }
-
-  isPvPowerBelow(threshold) {
-    const capability = this.hasCapability('marstek_pv_power') ? 'marstek_pv_power' : 'measure_power';
-    return this.isCapabilityBelow(capability, threshold);
   }
 
   getOutputPower() {
