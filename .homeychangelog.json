@@ -13,5 +13,8 @@
   },
   "1.0.4": {
     "en": "Fixed bug in schedule handling"
+  },
+  "1.0.5": {
+    "en": "Changed app logo"
   }
 }
