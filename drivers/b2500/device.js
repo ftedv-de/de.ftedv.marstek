@@ -12,11 +12,20 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function normalizeHomeyTargetPower(value) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue)) return null;
+  if (Object.is(numberValue, -0)) return 0;
+  return Math.round(numberValue);
+}
+
 class B2500Device extends Homey.Device {
   async onInit() {
     this.settings = this.getSettings();
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
     this.lastScheduleSlots = [];
+    this.pendingTargetPower = null;
+    this.pendingTargetPowerUntil = 0;
 
     this.stateTopic = this.settings.mqtt_state_topic;
     this.commandTopic = this.settings.mqtt_command_topic;
@@ -119,10 +128,43 @@ class B2500Device extends Homey.Device {
     return this.getScheduleSlots();
   }
 
+  setPendingTargetPower(targetPower, timeoutMs = 10000) {
+    this.pendingTargetPower = normalizeHomeyTargetPower(targetPower);
+    this.pendingTargetPowerUntil = Date.now() + timeoutMs;
+  }
+
+  clearPendingTargetPower() {
+    this.pendingTargetPower = null;
+    this.pendingTargetPowerUntil = 0;
+  }
+
+  shouldIgnoreScheduleSync(scheduledTargetPower) {
+    if (this.pendingTargetPower === null) return false;
+
+    const scheduled = normalizeHomeyTargetPower(scheduledTargetPower);
+    const expected = normalizeHomeyTargetPower(this.pendingTargetPower);
+
+    if (scheduled === expected) {
+      this.clearPendingTargetPower();
+      return false;
+    }
+
+    if (Date.now() > this.pendingTargetPowerUntil) {
+      this.clearPendingTargetPower();
+      return false;
+    }
+
+    return true;
+  }
+
   async syncTargetPowerFromSchedule(scheduleSlots) {
     if (!this.hasCapability('target_power')) return;
 
     const scheduledTargetPower = getHomeyTargetPowerFromSlots(scheduleSlots);
+
+    if (this.shouldIgnoreScheduleSync(scheduledTargetPower)) {
+      return;
+    }
 
     if (scheduledTargetPower === null || scheduledTargetPower === 0) {
       if (this.hasCapability('target_power_mode') && this.getCapabilityValue('target_power_mode') !== 'device') {
@@ -145,14 +187,16 @@ class B2500Device extends Homey.Device {
   }
 
   async setTargetPower(value) {
-    const targetPower = Number(value);
-    if (!Number.isFinite(targetPower)) {
+    const targetPower = normalizeHomeyTargetPower(value);
+    if (targetPower === null) {
       throw new Error('Invalid target power');
     }
 
     if (targetPower > 0) {
       throw new Error('Charging via positive target_power is not supported by this device');
     }
+
+    this.setPendingTargetPower(targetPower);
 
     await this.setTargetPowerSchedule(targetPower);
 
@@ -167,11 +211,12 @@ class B2500Device extends Homey.Device {
 
   async setTargetPowerMode(value) {
     if (value === 'homey') {
-      const currentTargetPower = Number(this.getCapabilityValue('target_power'));
-      const targetPower = Number.isFinite(currentTargetPower) && currentTargetPower < 0
+      const currentTargetPower = normalizeHomeyTargetPower(this.getCapabilityValue('target_power'));
+      const targetPower = currentTargetPower !== null && currentTargetPower < 0
         ? currentTargetPower
         : 0;
 
+      this.setPendingTargetPower(targetPower);
       await this.setTargetPowerSchedule(targetPower);
 
       if (this.hasCapability('target_power_mode')) {
@@ -180,6 +225,7 @@ class B2500Device extends Homey.Device {
       return;
     }
 
+    this.setPendingTargetPower(0);
     await this.setTargetPowerSchedule(0);
 
     if (this.hasCapability('target_power')) {
