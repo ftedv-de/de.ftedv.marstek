@@ -24,8 +24,6 @@ class B2500Device extends Homey.Device {
     this.settings = this.getSettings();
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
     this.lastScheduleSlots = [];
-    this.pendingTargetPower = null;
-    this.pendingTargetPowerUntil = 0;
 
     this.stateTopic = this.settings.mqtt_state_topic;
     this.commandTopic = this.settings.mqtt_command_topic;
@@ -128,62 +126,22 @@ class B2500Device extends Homey.Device {
     return this.getScheduleSlots();
   }
 
-  setPendingTargetPower(targetPower, timeoutMs = 10000) {
-    this.pendingTargetPower = normalizeHomeyTargetPower(targetPower);
-    this.pendingTargetPowerUntil = Date.now() + timeoutMs;
-  }
-
-  clearPendingTargetPower() {
-    this.pendingTargetPower = null;
-    this.pendingTargetPowerUntil = 0;
-  }
-
-  shouldIgnoreScheduleSync(scheduledTargetPower) {
-    if (this.pendingTargetPower === null) return false;
-
-    const scheduled = normalizeHomeyTargetPower(scheduledTargetPower);
-    const expected = normalizeHomeyTargetPower(this.pendingTargetPower);
-
-    if (scheduled === expected) {
-      this.clearPendingTargetPower();
-      return false;
-    }
-
-    if (Date.now() > this.pendingTargetPowerUntil) {
-      this.clearPendingTargetPower();
-      return false;
-    }
-
-    return true;
-  }
-
   async syncTargetPowerFromSchedule(scheduleSlots) {
     if (!this.hasCapability('target_power')) return;
 
     const scheduledTargetPower = getHomeyTargetPowerFromSlots(scheduleSlots);
 
-    if (this.shouldIgnoreScheduleSync(scheduledTargetPower)) {
-      return;
-    }
-
     if (scheduledTargetPower === null || scheduledTargetPower === 0) {
-      if (this.hasCapability('target_power_mode') && this.getCapabilityValue('target_power_mode') !== 'device') {
-        await this.setCapabilityValue('target_power_mode', 'device').catch(this.error);
-      }
+      await this.updateTargetPowerModeCapability('device');
 
-      if (scheduledTargetPower === 0 && this.getCapabilityValue('target_power') !== 0) {
-        await this.setCapabilityValue('target_power', 0).catch(this.error);
+      if (scheduledTargetPower === 0) {
+        await this.updateTargetPowerCapability(0);
       }
       return;
     }
 
-    if (this.hasCapability('target_power_mode') && this.getCapabilityValue('target_power_mode') !== 'homey') {
-      await this.setCapabilityValue('target_power_mode', 'homey').catch(this.error);
-    }
-
-    if (this.getCapabilityValue('target_power') !== scheduledTargetPower) {
-      await this.setCapabilityValue('target_power', scheduledTargetPower).catch(this.error);
-    }
+    await this.updateTargetPowerModeCapability('homey');
+    await this.updateTargetPowerCapability(scheduledTargetPower);
   }
 
   async setTargetPower(value) {
@@ -196,52 +154,61 @@ class B2500Device extends Homey.Device {
       throw new Error('Charging via positive target_power is not supported by this device');
     }
 
-    this.setPendingTargetPower(targetPower);
-
-    await this.setTargetPowerSchedule(targetPower);
-
-    if (this.hasCapability('target_power')) {
-      await this.setCapabilityValue('target_power', targetPower).catch(this.error);
-    }
-
-    if (this.hasCapability('target_power_mode')) {
-      await this.setCapabilityValue('target_power_mode', targetPower < 0 ? 'homey' : 'device').catch(this.error);
-    }
+    await this.writeTargetPowerSchedule(targetPower);
+    await this.updateTargetPowerCapability(targetPower);
+    await this.updateTargetPowerModeCapability(targetPower < 0 ? 'homey' : 'device');
+    await this.refreshStateAfterWrite();
   }
 
   async setTargetPowerMode(value) {
-    if (value === 'homey') {
-      const currentTargetPower = normalizeHomeyTargetPower(this.getCapabilityValue('target_power'));
-      const targetPower = currentTargetPower !== null && currentTargetPower < 0
-        ? currentTargetPower
-        : 0;
-
-      this.setPendingTargetPower(targetPower);
-      await this.setTargetPowerSchedule(targetPower);
-
-      if (this.hasCapability('target_power_mode')) {
-        await this.setCapabilityValue('target_power_mode', targetPower < 0 ? 'homey' : 'device').catch(this.error);
-      }
+    if (value === 'device') {
+      await this.writeTargetPowerSchedule(0);
+      await this.updateTargetPowerModeCapability('device');
+      await this.refreshStateAfterWrite();
       return;
     }
 
-    this.setPendingTargetPower(0);
-    await this.setTargetPowerSchedule(0);
+    if (value === 'homey') {
+      const currentTargetPower = normalizeHomeyTargetPower(this.getCapabilityValue('target_power'));
 
-    if (this.hasCapability('target_power')) {
-      await this.setCapabilityValue('target_power', 0).catch(this.error);
+      if (currentTargetPower !== null && currentTargetPower < 0) {
+        await this.writeTargetPowerSchedule(currentTargetPower);
+      }
+
+      await this.updateTargetPowerModeCapability('homey');
+      await this.refreshStateAfterWrite();
+      return;
     }
 
-    if (this.hasCapability('target_power_mode')) {
-      await this.setCapabilityValue('target_power_mode', 'device').catch(this.error);
-    }
+    throw new Error(`Unsupported target power mode: ${value}`);
   }
 
-  async setTargetPowerSchedule(targetPower) {
+  async updateTargetPowerCapability(targetPower) {
+    if (!this.hasCapability('target_power')) return;
+
+    const currentValue = normalizeHomeyTargetPower(this.getCapabilityValue('target_power'));
+    const nextValue = normalizeHomeyTargetPower(targetPower);
+
+    if (nextValue === null || currentValue === nextValue) return;
+
+    await this.setCapabilityValue('target_power', nextValue).catch(this.error);
+  }
+
+  async updateTargetPowerModeCapability(mode) {
+    if (!this.hasCapability('target_power_mode')) return;
+    if (this.getCapabilityValue('target_power_mode') === mode) return;
+
+    await this.setCapabilityValue('target_power_mode', mode).catch(this.error);
+  }
+
+  async writeTargetPowerSchedule(targetPower) {
     const commandBody = buildHomeyTargetPowerScheduleBody(this.getScheduleSlots(), targetPower);
     const command = this.protocol.setTimerSchedule(commandBody);
 
-    await this.sendCommand(command);
+    return this.sendCommand(command);
+  }
+
+  async refreshStateAfterWrite() {
     await delay(1000);
     await this.refreshState();
   }
