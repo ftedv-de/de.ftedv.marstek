@@ -140,8 +140,8 @@ class B2500Device extends Homey.Device {
       return;
     }
 
-    await this.updateTargetPowerModeCapability('homey');
     await this.updateTargetPowerCapability(scheduledTargetPower);
+    await this.updateTargetPowerModeCapability('homey');
   }
 
   async setTargetPower(value) {
@@ -156,7 +156,6 @@ class B2500Device extends Homey.Device {
 
     await this.writeTargetPowerSchedule(targetPower);
     await this.updateTargetPowerCapability(targetPower);
-    await this.updateTargetPowerModeCapability(targetPower < 0 ? 'homey' : 'device');
     await this.refreshStateAfterWrite();
   }
 
@@ -169,14 +168,7 @@ class B2500Device extends Homey.Device {
     }
 
     if (value === 'homey') {
-      const currentTargetPower = normalizeHomeyTargetPower(this.getCapabilityValue('target_power'));
-
-      if (currentTargetPower !== null && currentTargetPower < 0) {
-        await this.writeTargetPowerSchedule(currentTargetPower);
-      }
-
       await this.updateTargetPowerModeCapability('homey');
-      await this.refreshStateAfterWrite();
       return;
     }
 
