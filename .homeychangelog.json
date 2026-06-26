@@ -16,5 +16,8 @@
   },
   "1.0.5": {
     "en": "Changed app logo"
+  },
+  "1.0.6": {
+    "en": "Bugfixes on power management"
   }
 }
