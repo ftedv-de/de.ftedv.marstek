@@ -19,11 +19,19 @@ function normalizeHomeyTargetPower(value) {
   return Math.round(numberValue);
 }
 
+function normalizePollingIntervalSeconds(value) {
+  const seconds = Number(value);
+  if (!Number.isFinite(seconds) || seconds <= 0) return 0;
+  return Math.max(5, Math.round(seconds));
+}
+
 class B2500Device extends Homey.Device {
   async onInit() {
     this.settings = this.getSettings();
     this.protocol = protocols.create(this.settings.protocol_version || 'v2');
     this.lastScheduleSlots = [];
+    this.pollingTimer = null;
+    this.pollingInProgress = false;
 
     this.stateTopic = this.settings.mqtt_state_topic;
     this.commandTopic = this.settings.mqtt_command_topic;
@@ -42,6 +50,7 @@ class B2500Device extends Homey.Device {
       this.registerCapabilityListener('target_power_mode', async value => this.setTargetPowerMode(value));
     }
 
+    this.startPolling();
     this.refreshStateSoon(1000).catch(this.error);
   }
 
@@ -69,6 +78,10 @@ class B2500Device extends Homey.Device {
     if (changedKeys.includes('mqtt_command_topic')) {
       this.commandTopic = newSettings.mqtt_command_topic;
       this.refreshStateSoon(1000).catch(this.error);
+    }
+
+    if (changedKeys.includes('polling_interval_seconds')) {
+      this.restartPolling();
     }
   }
 
@@ -209,6 +222,46 @@ class B2500Device extends Homey.Device {
     return this.refreshState();
   }
 
+  getPollingIntervalMs() {
+    const settings = this.getSettings();
+    const seconds = normalizePollingIntervalSeconds(settings.polling_interval_seconds);
+    return seconds > 0 ? seconds * 1000 : 0;
+  }
+
+  startPolling() {
+    this.stopPolling();
+
+    const intervalMs = this.getPollingIntervalMs();
+    if (intervalMs <= 0) return;
+
+    this.pollingTimer = this.homey.setInterval(() => {
+      this.pollStatus().catch(this.error);
+    }, intervalMs);
+  }
+
+  stopPolling() {
+    if (!this.pollingTimer) return;
+
+    this.homey.clearInterval(this.pollingTimer);
+    this.pollingTimer = null;
+  }
+
+  restartPolling() {
+    this.startPolling();
+  }
+
+  async pollStatus() {
+    if (this.pollingInProgress) return;
+
+    this.pollingInProgress = true;
+
+    try {
+      await this.updateStatus();
+    } finally {
+      this.pollingInProgress = false;
+    }
+  }
+
   async setNumberCapability(capability, value) {
     if (!this.hasCapability(capability)) return;
 
@@ -298,6 +351,8 @@ class B2500Device extends Homey.Device {
   }
 
   async onDeleted() {
+    this.stopPolling();
+
     if (this.stateTopic) {
       this.homey.app.unsubscribeDevice(this, this.stateTopic);
     }
