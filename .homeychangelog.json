@@ -19,5 +19,8 @@
   },
   "1.0.6": {
     "en": "Bugfixes on power management"
+  },
+  "1.0.7": {
+    "en": "Added polling interval for battery device"
   }
 }
