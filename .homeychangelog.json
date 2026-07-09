@@ -22,5 +22,8 @@
   },
   "1.0.7": {
     "en": "Added polling interval for battery device"
+  },
+  "1.1.0": {
+    "en": "Polling interval fix, translations"
   }
 }
