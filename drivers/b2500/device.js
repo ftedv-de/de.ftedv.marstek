@@ -8,6 +8,8 @@ const {
   updateUserScheduleSlots,
 } = require('../../lib/marstek/b2500/services/ScheduleService');
 
+const DEFAULT_POLLING_INTERVAL_SECONDS = 60;
+
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -32,6 +34,7 @@ class B2500Device extends Homey.Device {
     this.lastScheduleSlots = [];
     this.pollingTimer = null;
     this.pollingInProgress = false;
+    this.commandQueue = Promise.resolve();
 
     this.stateTopic = this.settings.mqtt_state_topic;
     this.commandTopic = this.settings.mqtt_command_topic;
@@ -224,7 +227,10 @@ class B2500Device extends Homey.Device {
 
   getPollingIntervalMs() {
     const settings = this.getSettings();
-    const seconds = normalizePollingIntervalSeconds(settings.polling_interval_seconds);
+    const seconds = normalizePollingIntervalSeconds(
+      settings.polling_interval_seconds ?? DEFAULT_POLLING_INTERVAL_SECONDS,
+    );
+
     return seconds > 0 ? seconds * 1000 : 0;
   }
 
@@ -347,7 +353,14 @@ class B2500Device extends Homey.Device {
       throw new Error('No MQTT command topic configured');
     }
 
-    return this.homey.app.publish(this.commandTopic, command);
+    const run = () => this.homey.app.publish(this.commandTopic, command);
+    const queued = this.commandQueue.then(run, run);
+
+    this.commandQueue = queued.catch(err => {
+      this.error('Queued MQTT command failed', err);
+    });
+
+    return queued;
   }
 
   async onDeleted() {
