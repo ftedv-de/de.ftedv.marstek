@@ -112,6 +112,26 @@
         "de": "MQTT Command-Topic"
       },
       "value": ""
+    },
+    {
+      "id": "polling_interval_seconds",
+      "type": "number",
+      "label": {
+        "en": "Polling interval",
+        "de": "Polling-Intervall"
+      },
+      "hint": {
+        "en": "Status polling interval in seconds. Set to 0 to disable automatic polling.",
+        "de": "Status-Polling-Intervall in Sekunden. 0 deaktiviert das automatische Polling."
+      },
+      "value": 60,
+      "min": 0,
+      "max": 3600,
+      "step": 5,
+      "units": {
+        "en": "seconds",
+        "de": "Sekunden"
+      }
     }
   ]
 }
