@@ -1,35 +1,49 @@
 {
   "1.0.0": {
-    "en": "First version!"
+    "en": "First version!",
+    "de": "Erste Version!"
   },
   "1.0.1": {
-    "en": "Initial support for B2500"
+    "en": "Initial support for B2500",
+    "de": "Erste Unterstützung für den B2500"
   },
   "1.0.2": {
-    "en": "added usage info to readme.txt"
+    "en": "Added usage information to the app description",
+    "de": "Nutzungshinweise zur App-Beschreibung hinzugefügt"
   },
   "1.0.3": {
-    "en": "Added support info and community link"
+    "en": "Added support information and a community link",
+    "de": "Supportinformationen und einen Link zur Community hinzugefügt"
   },
   "1.0.4": {
-    "en": "Fixed bug in schedule handling"
+    "en": "Fixed a bug in schedule handling",
+    "de": "Fehler bei der Zeitplanverwaltung behoben"
   },
   "1.0.5": {
-    "en": "Changed app logo"
+    "en": "Updated the app logo",
+    "de": "App-Logo aktualisiert"
   },
   "1.0.6": {
-    "en": "Bugfixes on power management"
+    "en": "Fixed bugs in power management",
+    "de": "Fehler bei der Leistungssteuerung behoben"
   },
   "1.0.7": {
-    "en": "Added polling interval for battery device"
+    "en": "Added a polling interval for the battery device",
+    "de": "Abfrageintervall für das Batteriegerät hinzugefügt"
   },
   "1.1.0": {
-    "en": "Polling interval fix, translations"
+    "en": "Fixed the polling interval and added translations",
+    "de": "Abfrageintervall korrigiert und Übersetzungen hinzugefügt"
   },
   "1.2.0": {
-    "en": "Fixes for better stability"
+    "en": "Fixes for improved stability",
+    "de": "Korrekturen zur Verbesserung der Stabilität"
   },
   "1.2.1": {
-    "en": "added slider for setting DoD level"
+    "en": "Added a slider for setting the depth of discharge (DoD)",
+    "de": "Schieberegler zum Einstellen der Entladetiefe (DoD) hinzugefügt"
+  },
+  "1.2.2": {
+    "en": "Fixed translations and regional texts"
   }
 }

@@ -1,6 +1,6 @@
 {
   "id": "de.ftedv.marstek",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "compatibility": ">=12.13.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -8,11 +8,12 @@
     "local"
   ],
   "name": {
-    "en": "Marstek Solar Battery"
+    "en": "Marstek Solar Battery",
+    "de": "Marstek Solar Battery"
   },
   "description": {
-    "en": "Connect your Marstek B2500 to Homey exclusively via MQTT",
-    "de": "Verbinde deinen Marstek B2500 ausschließlich über MQTT mit Homey"
+    "en": "Committed to providing affordable clean energy products to every family",
+    "de": "Engagiert, jeder Familie erschwingliche Produkte für saubere Energie zu bieten"
   },
   "category": [
     "energy"
@@ -30,6 +31,12 @@
   "tags": {
     "en": [
       "energy",
+      "marstek",
+      "b2500",
+      "solar"
+    ],
+    "de": [
+      "energie",
       "marstek",
       "b2500",
       "solar"

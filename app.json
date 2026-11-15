@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.ftedv.marstek",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "compatibility": ">=12.13.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -9,11 +9,12 @@
     "local"
   ],
   "name": {
-    "en": "Marstek Solar Battery"
+    "en": "Marstek Solar Battery",
+    "de": "Marstek Solar Battery"
   },
   "description": {
-    "en": "Connect your Marstek B2500 to Homey exclusively via MQTT",
-    "de": "Verbinde deinen Marstek B2500 ausschließlich über MQTT mit Homey"
+    "en": "Committed to providing affordable clean energy products to every family",
+    "de": "Engagiert, jeder Familie erschwingliche Produkte für saubere Energie zu bieten"
   },
   "category": [
     "energy"
@@ -31,6 +32,12 @@
   "tags": {
     "en": [
       "energy",
+      "marstek",
+      "b2500",
+      "solar"
+    ],
+    "de": [
+      "energie",
       "marstek",
       "b2500",
       "solar"
@@ -68,7 +75,8 @@
               "de": "PV-Leistung"
             },
             "units": {
-              "en": "W"
+              "en": "W",
+              "de": "W"
             }
           }
         ],
@@ -106,7 +114,8 @@
               "de": "PV-Leistung"
             },
             "units": {
-              "en": "W"
+              "en": "W",
+              "de": "W"
             }
           }
         ],
@@ -140,7 +149,8 @@
               "de": "PV-Leistung"
             },
             "units": {
-              "en": "W"
+              "en": "W",
+              "de": "W"
             }
           }
         ],
@@ -402,7 +412,8 @@
     {
       "id": "b2500",
       "name": {
-        "en": "Marstek B2500"
+        "en": "Marstek B2500",
+        "de": "Marstek B2500"
       },
       "class": "battery",
       "capabilities": [
@@ -500,7 +511,7 @@
           "id": "mqtt_state_topic",
           "type": "text",
           "label": {
-            "de": "Status Topic",
+            "de": "Status-Topic",
             "en": "State topic"
           },
           "value": "hame_energy/HMJ-2/device/18cedfd22770/ctrl"
@@ -509,7 +520,7 @@
           "id": "mqtt_command_topic",
           "type": "text",
           "label": {
-            "de": "Command Topic",
+            "de": "Befehls-Topic",
             "en": "Command topic"
           },
           "value": "hame_energy/App/18cedfd22770/ctrl"
@@ -539,7 +550,8 @@
     {
       "id": "b2500-pv",
       "name": {
-        "en": "Marstek B2500 PV"
+        "en": "Marstek B2500 PV",
+        "de": "Marstek B2500 PV"
       },
       "class": "solarpanel",
       "capabilities": [
@@ -558,13 +570,13 @@
         "measure_power.pv1": {
           "title": {
             "en": "PV 1 Power",
-            "de": "PV 1 Leistung"
+            "de": "PV-1-Leistung"
           }
         },
         "measure_power.pv2": {
           "title": {
             "en": "PV 2 Power",
-            "de": "PV 2 Leistung"
+            "de": "PV-2-Leistung"
           }
         },
         "meter_power": {
@@ -610,7 +622,7 @@
           "type": "text",
           "label": {
             "en": "MQTT state topic",
-            "de": "MQTT Status-Topic"
+            "de": "MQTT-Status-Topic"
           },
           "value": ""
         },
@@ -619,7 +631,7 @@
           "type": "text",
           "label": {
             "en": "MQTT command topic",
-            "de": "MQTT Command-Topic"
+            "de": "MQTT-Befehls-Topic"
           },
           "value": ""
         }
@@ -634,7 +646,8 @@
         "de": "Verfügbare Energie"
       },
       "units": {
-        "en": "Wh"
+        "en": "Wh",
+        "de": "Wh"
       },
       "decimals": 0,
       "insights": true,
@@ -649,7 +662,8 @@
         "de": "Maximale Zelltemperatur"
       },
       "units": {
-        "en": "°C"
+        "en": "°C",
+        "de": "°C"
       },
       "decimals": 1,
       "insights": true,
@@ -664,7 +678,8 @@
         "de": "Minimale Zelltemperatur"
       },
       "units": {
-        "en": "°C"
+        "en": "°C",
+        "de": "°C"
       },
       "decimals": 1,
       "insights": true,
@@ -703,7 +718,8 @@
         "de": "Entladetiefe"
       },
       "units": {
-        "en": "%"
+        "en": "%",
+        "de": "%"
       },
       "min": 0,
       "max": 100,
@@ -733,7 +749,8 @@
         "de": "Ausgangsleistung"
       },
       "units": {
-        "en": "W"
+        "en": "W",
+        "de": "W"
       },
       "decimals": 0,
       "insights": true,
@@ -756,10 +773,11 @@
       "type": "number",
       "title": {
         "en": "Output 1 Power",
-        "de": "Ausgang 1 Leistung"
+        "de": "Leistung an Ausgang 1"
       },
       "units": {
-        "en": "W"
+        "en": "W",
+        "de": "W"
       },
       "decimals": 0,
       "insights": true,
@@ -782,10 +800,11 @@
       "type": "number",
       "title": {
         "en": "Output 2 Power",
-        "de": "Ausgang 2 Leistung"
+        "de": "Leistung an Ausgang 2"
       },
       "units": {
-        "en": "W"
+        "en": "W",
+        "de": "W"
       },
       "decimals": 0,
       "insights": true,
@@ -797,10 +816,11 @@
       "type": "number",
       "title": {
         "en": "PV Energy",
-        "de": "PV Energie"
+        "de": "PV-Energie"
       },
       "units": {
-        "en": "kWh"
+        "en": "kWh",
+        "de": "kWh"
       },
       "decimals": 3,
       "insights": true,
@@ -812,10 +832,11 @@
       "type": "number",
       "title": {
         "en": "PV Power",
-        "de": "PV Leistung"
+        "de": "PV-Leistung"
       },
       "units": {
-        "en": "W"
+        "en": "W",
+        "de": "W"
       },
       "decimals": 0,
       "insights": true,
@@ -827,10 +848,11 @@
       "type": "number",
       "title": {
         "en": "PV 1 Power",
-        "de": "PV 1 Leistung"
+        "de": "PV-1-Leistung"
       },
       "units": {
-        "en": "W"
+        "en": "W",
+        "de": "W"
       },
       "decimals": 0,
       "insights": true,
@@ -842,10 +864,11 @@
       "type": "number",
       "title": {
         "en": "PV 2 Power",
-        "de": "PV 2 Leistung"
+        "de": "PV-2-Leistung"
       },
       "units": {
-        "en": "W"
+        "en": "W",
+        "de": "W"
       },
       "decimals": 0,
       "insights": true,
@@ -860,7 +883,8 @@
         "de": "Ausgangsschwelle"
       },
       "units": {
-        "en": "W"
+        "en": "W",
+        "de": "W"
       },
       "decimals": 0,
       "insights": true,
@@ -875,7 +899,8 @@
         "de": "WLAN-Signal"
       },
       "units": {
-        "en": "dBm"
+        "en": "dBm",
+        "de": "dBm"
       },
       "decimals": 0,
       "insights": true,
