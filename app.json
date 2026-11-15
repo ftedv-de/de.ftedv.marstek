@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.ftedv.marstek",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "compatibility": ">=12.13.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -12,7 +12,8 @@
     "en": "Marstek Solar Battery"
   },
   "description": {
-    "en": "MARSTEK is committed to providing affordable clean energy products to every family"
+    "en": "Connect your Marstek B2500 to Homey exclusively via MQTT",
+    "de": "Verbinde deinen Marstek B2500 ausschließlich über MQTT mit Homey"
   },
   "category": [
     "energy"
@@ -346,6 +347,39 @@
     "actions": [
       {
         "title": {
+          "en": "Set depth of discharge",
+          "de": "Entladetiefe setzen"
+        },
+        "titleFormatted": {
+          "en": "Set depth of discharge to [[percentage]] %",
+          "de": "Entladetiefe auf [[percentage]] % setzen"
+        },
+        "hint": {
+          "en": "90 % depth of discharge leaves 10 % battery reserve. The device must confirm the value. V2 changes are not stored in flash.",
+          "de": "90 % Entladetiefe lassen 10 % Batteriereserve. Das Gerät muss den Wert bestätigen. V2-Änderungen werden nicht im Flash gespeichert."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500"
+          },
+          {
+            "name": "percentage",
+            "type": "number",
+            "title": {
+              "en": "Depth of discharge (%)",
+              "de": "Entladetiefe (%)"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        ],
+        "id": "set_dod"
+      },
+      {
+        "title": {
           "en": "Update status",
           "de": "Status aktualisieren"
         },
@@ -674,10 +708,11 @@
       "min": 0,
       "max": 100,
       "decimals": 0,
+      "step": 1,
       "insights": true,
-      "uiComponent": "sensor",
+      "uiComponent": "slider",
       "getable": true,
-      "setable": false
+      "setable": true
     },
     "marstek_firmware_version": {
       "type": "number",

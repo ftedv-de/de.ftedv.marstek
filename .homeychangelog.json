@@ -28,5 +28,8 @@
   },
   "1.2.0": {
     "en": "Fixes for better stability"
+  },
+  "1.2.1": {
+    "en": "added slider for setting DoD level"
   }
 }
