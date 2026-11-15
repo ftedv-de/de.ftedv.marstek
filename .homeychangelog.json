@@ -25,5 +25,8 @@
   },
   "1.1.0": {
     "en": "Polling interval fix, translations"
+  },
+  "1.2.0": {
+    "en": "Fixes for better stability"
   }
 }
