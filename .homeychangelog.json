@@ -48,6 +48,10 @@
     "de": "Übersetzungen und sprachspezifische Texte korrigiert"
   },
   "1.2.3": {
-    "en": "fixed scaling bug in DoD slider"
+    "en": "fixed scaling bug in DoD slider",
+    "de": "Skalierungsfehler beim DoD-Schieberegler behoben"
+  },
+  "1.2.4": {
+    "en": "DoD slider fix and hinting to the instructions in the community post"
   }
 }
