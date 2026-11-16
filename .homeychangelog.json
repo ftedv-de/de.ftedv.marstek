@@ -57,5 +57,8 @@
   },
   "2.0.0": {
     "en": "Added BLE Device connection. Main Device (Battery) now also adds PV device automatically."
+  },
+  "2.0.1": {
+    "en": "changed description"
   }
 }
