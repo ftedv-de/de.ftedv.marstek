@@ -1,6 +1,6 @@
 {
   "id": "de.ftedv.marstek",
-  "version": "1.2.4",
+  "version": "2.0.0",
   "compatibility": ">=12.13.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -18,7 +18,9 @@
   "category": [
     "energy"
   ],
-  "permissions": [],
+  "permissions": [
+    "homey:wireless:ble"
+  ],
   "author": {
     "name": "Florian Trück",
     "email": "ftrueck@gmail.com"
@@ -33,13 +35,15 @@
       "energy",
       "marstek",
       "b2500",
-      "solar"
+      "solar",
+      "bluetooth"
     ],
     "de": [
       "energie",
       "marstek",
       "b2500",
-      "solar"
+      "solar",
+      "bluetooth"
     ]
   },
   "support": "https://community.homey.app/t/app-pro-marstek-solar-battery/156522",

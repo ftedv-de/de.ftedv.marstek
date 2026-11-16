@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.ftedv.marstek",
-  "version": "1.2.4",
+  "version": "2.0.0",
   "compatibility": ">=12.13.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -19,7 +19,9 @@
   "category": [
     "energy"
   ],
-  "permissions": [],
+  "permissions": [
+    "homey:wireless:ble"
+  ],
   "author": {
     "name": "Florian Trück",
     "email": "ftrueck@gmail.com"
@@ -34,13 +36,15 @@
       "energy",
       "marstek",
       "b2500",
-      "solar"
+      "solar",
+      "bluetooth"
     ],
     "de": [
       "energie",
       "marstek",
       "b2500",
-      "solar"
+      "solar",
+      "bluetooth"
     ]
   },
   "support": "https://community.homey.app/t/app-pro-marstek-solar-battery/156522",
@@ -84,7 +88,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble|b2500-pv|b2500-pv-ble&capabilities=measure_power.pv1"
           },
           {
             "name": "threshold",
@@ -123,7 +127,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble|b2500-pv|b2500-pv-ble&capabilities=measure_power.pv1"
           },
           {
             "name": "threshold",
@@ -158,7 +162,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble|b2500-pv|b2500-pv-ble&capabilities=measure_power.pv1"
           }
         ],
         "id": "pv_power_changed"
@@ -178,7 +182,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble&capabilities=measure_battery"
           },
           {
             "name": "value",
@@ -203,7 +207,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble&capabilities=measure_battery"
           },
           {
             "name": "value",
@@ -228,7 +232,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble&capabilities=measure_battery"
           },
           {
             "name": "output",
@@ -266,7 +270,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble&capabilities=measure_battery"
           },
           {
             "name": "value",
@@ -291,7 +295,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble&capabilities=measure_battery"
           },
           {
             "name": "value",
@@ -316,7 +320,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble|b2500-pv|b2500-pv-ble&capabilities=measure_power.pv1"
           },
           {
             "name": "value",
@@ -341,7 +345,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble|b2500-pv|b2500-pv-ble&capabilities=measure_power.pv1"
           },
           {
             "name": "value",
@@ -357,6 +361,52 @@
     "actions": [
       {
         "title": {
+          "en": "Set charging mode",
+          "de": "Lademodus setzen"
+        },
+        "titleFormatted": {
+          "en": "Set charging mode to [[mode]]",
+          "de": "Lademodus auf [[mode]] setzen"
+        },
+        "hint": {
+          "en": "Mode 0 allows simultaneous charging/discharging on V2, but enables PV2 pass-through on V1. The device must confirm the value. MQTT V2 changes are not stored in flash; BLE changes persist and require 60 seconds between setting changes. Schedules and Homey control remain unchanged.",
+          "de": "Modus 0 erlaubt bei V2 gleichzeitiges Laden/Entladen, aktiviert bei V1 aber die PV2-Durchleitung. Das Gerät muss den Wert bestätigen. MQTT-V2-Änderungen werden nicht im Flash gespeichert; BLE-Änderungen bleiben gespeichert und benötigen 60 Sekunden Abstand zwischen Einstellungsänderungen. Zeitpläne und Homey-Steuerung bleiben unverändert."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=b2500|b2500-ble&capabilities=measure_battery"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "title": {
+              "en": "Charging mode",
+              "de": "Lademodus"
+            },
+            "values": [
+              {
+                "id": "0",
+                "title": {
+                  "en": "Simultaneous charge/discharge (V1: PV2 pass-through)",
+                  "de": "Gleichzeitig laden/entladen (V1: PV2-Durchleitung)"
+                }
+              },
+              {
+                "id": "1",
+                "title": {
+                  "en": "Charge first, then discharge",
+                  "de": "Erst laden, dann entladen"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "set_charge_mode"
+      },
+      {
+        "title": {
           "en": "Set depth of discharge",
           "de": "Entladetiefe setzen"
         },
@@ -365,14 +415,14 @@
           "de": "Entladetiefe auf [[percentage]] % setzen"
         },
         "hint": {
-          "en": "90 % depth of discharge leaves 10 % battery reserve. The device must confirm the value. V2 changes are not stored in flash.",
-          "de": "90 % Entladetiefe lassen 10 % Batteriereserve. Das Gerät muss den Wert bestätigen. V2-Änderungen werden nicht im Flash gespeichert."
+          "en": "90 % depth of discharge leaves 10 % battery reserve. The device must confirm the value. MQTT V2 changes are not stored in flash; BLE changes are stored in flash and limited to one change per minute.",
+          "de": "90 % Entladetiefe lassen 10 % Batteriereserve. Das Gerät muss den Wert bestätigen. MQTT-V2-Änderungen werden nicht im Flash gespeichert; BLE-Änderungen werden im Flash gespeichert und sind auf eine Änderung pro Minute begrenzt."
         },
         "args": [
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble&capabilities=measure_battery"
           },
           {
             "name": "percentage",
@@ -401,7 +451,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=b2500"
+            "filter": "driver_id=b2500|b2500-ble&capabilities=measure_battery"
           }
         ],
         "id": "update_status"
@@ -412,8 +462,8 @@
     {
       "id": "b2500",
       "name": {
-        "en": "Marstek B2500",
-        "de": "Marstek B2500"
+        "en": "Marstek B2500 (MQTT)",
+        "de": "Marstek B2500 (MQTT)"
       },
       "class": "battery",
       "capabilities": [
@@ -428,6 +478,7 @@
         "marstek_output2_power",
         "marstek_dod",
         "marstek_dod_set",
+        "marstek_charge_mode_set",
         "marstek_threshold_w",
         "marstek_firmware_version",
         "marstek_wifi_signal",
@@ -558,10 +609,134 @@
       ]
     },
     {
+      "id": "b2500-ble",
+      "name": {
+        "en": "Marstek B2500 (BLE)",
+        "de": "Marstek B2500 (BLE)"
+      },
+      "class": "battery",
+      "capabilities": [
+        "measure_battery",
+        "measure_power",
+        "target_power",
+        "target_power_mode",
+        "meter_power.charged",
+        "meter_power.discharged",
+        "b2500_available_energy",
+        "marstek_output1_power",
+        "marstek_output2_power",
+        "marstek_output1_enabled",
+        "marstek_output2_enabled",
+        "marstek_dod",
+        "marstek_dod_set",
+        "marstek_charge_mode_set",
+        "marstek_threshold_w",
+        "marstek_firmware_version",
+        "marstek_cell_temp_min",
+        "marstek_cell_temp_max"
+      ],
+      "capabilitiesOptions": {
+        "measure_power": {
+          "title": {
+            "en": "Output Power",
+            "de": "Ausgangsleistung"
+          }
+        },
+        "marstek_dod_set": {
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "decimals": 2,
+          "preventTag": true,
+          "preventFlow": true,
+          "preventInsights": true
+        },
+        "target_power": {
+          "min": -800,
+          "max": 0,
+          "step": 10,
+          "decimals": 0
+        },
+        "meter_power.charged": {
+          "title": {
+            "en": "Charged Energy",
+            "de": "Geladene Energie"
+          },
+          "decimals": 3,
+          "energy": {
+            "cumulative": true,
+            "meterType": "daily"
+          }
+        },
+        "meter_power.discharged": {
+          "title": {
+            "en": "Discharged Energy",
+            "de": "Entladene Energie"
+          },
+          "decimals": 3,
+          "energy": {
+            "cumulative": true,
+            "meterType": "daily"
+          }
+        }
+      },
+      "energy": {
+        "homeBattery": true,
+        "meterPowerImportedCapability": "meter_power.charged",
+        "meterPowerExportedCapability": "meter_power.discharged"
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "ble"
+      ],
+      "images": {
+        "small": "/drivers/b2500-ble/assets/images/small.png",
+        "large": "/drivers/b2500-ble/assets/images/large.png",
+        "xlarge": "/drivers/b2500-ble/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        }
+      ],
+      "repair": [
+        {
+          "id": "network"
+        },
+        {
+          "id": "schedules"
+        }
+      ],
+      "settings": [
+        {
+          "id": "polling_interval_seconds",
+          "type": "number",
+          "label": {
+            "en": "BLE polling interval",
+            "de": "BLE-Abfrageintervall"
+          },
+          "hint": {
+            "en": "Shared BLE polling interval. On a PV companion with a matching BLE battery, configure this on the battery; PV changes are rejected. The battery's 0 disables polling for both. Standalone PV uses its own value. App-enforced minimum: 30 seconds (not a proven device limit).",
+            "de": "Gemeinsames BLE-Abfrageintervall. Bei einem PV-Companion mit passender BLE-Batterie wird es am Batteriegerät konfiguriert; PV-Änderungen werden abgewiesen. 0 an der Batterie deaktiviert beide Abfragen. Eigenständiges PV nutzt den eigenen Wert. App-Grenze: mindestens 30 Sekunden (keine belegte Gerätegrenze)."
+          },
+          "value": 60,
+          "min": 0,
+          "max": 3600,
+          "step": 30,
+          "units": {
+            "en": "seconds",
+            "de": "Sekunden"
+          }
+        }
+      ]
+    },
+    {
       "id": "b2500-pv",
       "name": {
-        "en": "Marstek B2500 PV",
-        "de": "Marstek B2500 PV"
+        "en": "Marstek B2500 PV (MQTT)",
+        "de": "Marstek B2500 PV (MQTT)"
       },
       "class": "solarpanel",
       "capabilities": [
@@ -646,6 +821,89 @@
           "value": ""
         }
       ]
+    },
+    {
+      "id": "b2500-pv-ble",
+      "name": {
+        "en": "Marstek B2500 PV (BLE)",
+        "de": "Marstek B2500 PV (BLE)"
+      },
+      "class": "solarpanel",
+      "capabilities": [
+        "measure_power",
+        "measure_power.pv1",
+        "measure_power.pv2",
+        "meter_power"
+      ],
+      "capabilitiesOptions": {
+        "measure_power": {
+          "title": {
+            "en": "PV Power",
+            "de": "PV-Leistung"
+          }
+        },
+        "measure_power.pv1": {
+          "title": {
+            "en": "PV 1 Power",
+            "de": "PV-1-Leistung"
+          }
+        },
+        "measure_power.pv2": {
+          "title": {
+            "en": "PV 2 Power",
+            "de": "PV-2-Leistung"
+          }
+        },
+        "meter_power": {
+          "title": {
+            "en": "PV Energy",
+            "de": "PV-Energie"
+          },
+          "decimals": 3,
+          "energy": {
+            "cumulative": true,
+            "meterType": "daily"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "ble"
+      ],
+      "images": {
+        "small": "/drivers/b2500-pv-ble/assets/images/small.png",
+        "large": "/drivers/b2500-pv-ble/assets/images/large.png",
+        "xlarge": "/drivers/b2500-pv-ble/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        }
+      ],
+      "settings": [
+        {
+          "id": "polling_interval_seconds",
+          "type": "number",
+          "label": {
+            "en": "BLE polling interval",
+            "de": "BLE-Abfrageintervall"
+          },
+          "hint": {
+            "en": "If a BLE battery device for this storage system is present, configure the interval on that main device; changes here are rejected. Otherwise this value controls standalone PV queries. This app enforces a 30-second minimum; 0 disables automatic queries.",
+            "de": "Wenn ein BLE-Batteriegerät für diesen Speicher vorhanden ist, konfiguriere das Intervall an diesem Hauptgerät; Änderungen hier werden abgewiesen. Andernfalls steuert dieser Wert die eigenständigen PV-Abfragen. Die App begrenzt auf mindestens 30 Sekunden; 0 deaktiviert automatische Abfragen."
+          },
+          "value": 60,
+          "min": 0,
+          "max": 3600,
+          "step": 30,
+          "units": {
+            "en": "seconds",
+            "de": "Sekunden"
+          }
+        }
+      ]
     }
   ],
   "capabilities": {
@@ -708,6 +966,32 @@
       "uiComponent": "sensor",
       "getable": true,
       "setable": false
+    },
+    "marstek_charge_mode_set": {
+      "type": "enum",
+      "title": {
+        "en": "Charging mode",
+        "de": "Lademodus"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "Simultaneous charge/discharge (V1: PV2 pass-through)",
+            "de": "Gleichzeitig laden/entladen (V1: PV2-Durchleitung)"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Charge first, then discharge",
+            "de": "Erst laden, dann entladen"
+          }
+        }
+      ]
     },
     "marstek_discharge_mode": {
       "type": "number",

@@ -52,6 +52,10 @@
     "de": "Skalierungsfehler beim DoD-Schieberegler behoben"
   },
   "1.2.4": {
-    "en": "DoD slider fix and hinting to the instructions in the community post"
+    "en": "DoD slider fix and hinting to the instructions in the community post",
+    "de": "DoD-Schieberegler korrigiert und einen Hinweis auf die Anleitung im Community-Thema ergänzt"
+  },
+  "2.0.0": {
+    "en": "Added BLE Device connection. Main Device (Battery) now also adds PV device automatically."
   }
 }
